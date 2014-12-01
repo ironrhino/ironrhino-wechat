@@ -55,6 +55,9 @@ public class Wechat {
 	@Value("${wechat.token:token}")
 	private String token;
 
+	@Value("${wechat.encodingAesKey:}")
+	private String encodingAesKey;
+
 	@Value("${wechat.appId:id}")
 	private String appId;
 
@@ -73,6 +76,14 @@ public class Wechat {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getEncodingAesKey() {
+		return encodingAesKey;
+	}
+
+	public void setEncodingAesKey(String encodingAesKey) {
+		this.encodingAesKey = encodingAesKey;
 	}
 
 	public String getAppId() {
