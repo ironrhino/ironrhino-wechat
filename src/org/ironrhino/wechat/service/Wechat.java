@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -29,6 +30,7 @@ import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
 import org.ironrhino.wechat.handler.WechatRequestHandler;
+import org.ironrhino.wechat.model.WechatAllMessage;
 import org.ironrhino.wechat.model.WechatMedia;
 import org.ironrhino.wechat.model.WechatMediaType;
 import org.ironrhino.wechat.model.WechatMessage;
@@ -135,7 +137,7 @@ public class Wechat {
 		return response;
 	}
 
-	public void send(WechatMessage msg) throws Exception {
+	public Long send(WechatMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/custom/send", json);
@@ -145,12 +147,50 @@ public class Wechat {
 		if (errcode != 0)
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
+		else if (node.get("msg_id") != null)
+			return node.get("msg_id").asLong();
+		else
+			return null;
 	}
-	
-	public void sendTemplate(WechatTemplateMessage msg) throws Exception {
+
+	public Long sendTemplate(WechatTemplateMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/template/send", json);
+		logger.info("received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		int errcode = node.get("errcode").asInt();
+		if (errcode != 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+		else if (node.get("msg_id") != null)
+			return node.get("msg_id").asLong();
+		else
+			return null;
+	}
+
+	public Long sendAll(WechatAllMessage msg) throws Exception {
+		String json = msg.toString();
+		logger.info("sending: {}", json);
+		String result = invoke("/message/mass/sendall", json);
+		logger.info("received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		int errcode = node.get("errcode").asInt();
+		if (errcode != 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+		else if (node.get("msg_id") != null)
+			return node.get("msg_id").asLong();
+		else
+			return null;
+	}
+
+	public void cancelSendAll(String msg_id) throws Exception {
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("msg_id", msg_id);
+		String request = JsonUtils.toJson(map);
+		logger.info("sending: {}", request);
+		String result = invoke("/message/mass/delete", request);
 		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
@@ -184,6 +224,21 @@ public class Wechat {
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
+		return new WechatMedia(result);
+	}
+
+	public WechatMedia uploadVideo(String media_id, String title,
+			String description) throws Exception {
+		String url = "http://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
+				+ fetchAccessToken();
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("media_id", media_id);
+		map.put("title", title);
+		map.put("description", description);
+		String request = JsonUtils.toJson(map);
+		logger.info("post to {}: {}", url, request);
+		String result = HttpClientUtils.post(url, request);
+		logger.info("received: " + result);
 		return new WechatMedia(result);
 	}
 
@@ -236,9 +291,8 @@ public class Wechat {
 		response.close();
 		httpClient.close();
 	}
-	
-	public WechatMedia uploadNews(WechatNewsMessage msg)
-			throws Exception {
+
+	public WechatMedia uploadNews(WechatNewsMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/media/uploadnews", json);
