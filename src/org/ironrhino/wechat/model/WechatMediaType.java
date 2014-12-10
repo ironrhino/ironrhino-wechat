@@ -7,7 +7,8 @@ import com.opensymphony.xwork2.util.LocalizedTextUtil;
 
 public enum WechatMediaType implements Displayable {
 
-	image(128 * 1024), voice(256 * 1024), video(1024 * 1024), thumb(64 * 1024);
+	image(128 * 1024), voice(256 * 1024), video(1024 * 1024), thumb(64 * 1024), news(
+			Integer.MAX_VALUE);
 
 	private int maxFileLength;
 

@@ -32,6 +32,7 @@ import org.ironrhino.wechat.handler.WechatRequestHandler;
 import org.ironrhino.wechat.model.WechatMedia;
 import org.ironrhino.wechat.model.WechatMediaType;
 import org.ironrhino.wechat.model.WechatMessage;
+import org.ironrhino.wechat.model.WechatNewsMessage;
 import org.ironrhino.wechat.model.WechatRequest;
 import org.ironrhino.wechat.model.WechatResponse;
 import org.ironrhino.wechat.model.WechatTemplateMessage;
@@ -234,6 +235,19 @@ public class Wechat {
 		IOUtils.copy(entity.getContent(), resp.getOutputStream());
 		response.close();
 		httpClient.close();
+	}
+	
+	public WechatMedia uploadNews(WechatNewsMessage msg)
+			throws Exception {
+		String json = msg.toString();
+		logger.info("sending: {}", json);
+		String result = invoke("/media/uploadnews", json);
+		logger.info("received: " + result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		if (node.has("errcode"))
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+		return new WechatMedia(result);
 	}
 
 	protected String invoke(String path, String request, int retryTimes)
