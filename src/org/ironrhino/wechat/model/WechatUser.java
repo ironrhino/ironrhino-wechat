@@ -14,6 +14,7 @@ public class WechatUser implements Serializable {
 	private static final long serialVersionUID = -2575653400669416221L;
 
 	private String openid;
+	private String unionid;
 	private String nickname;
 	private int sex;
 	private String city;
@@ -53,6 +54,14 @@ public class WechatUser implements Serializable {
 
 	public void setOpenid(String openid) {
 		this.openid = openid;
+	}
+
+	public String getUnionid() {
+		return unionid;
+	}
+
+	public void setUnionid(String unionid) {
+		this.unionid = unionid;
 	}
 
 	public String getNickname() {
