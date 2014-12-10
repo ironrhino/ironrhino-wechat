@@ -7,7 +7,7 @@ import com.opensymphony.xwork2.util.LocalizedTextUtil;
 
 public enum WechatEventType implements Displayable {
 
-	subscribe, unsubscribe, SCAN, LOCATION, CLICK;
+	subscribe, unsubscribe, SCAN, LOCATION, CLICK, TEMPLATESENDJOBFINISH;
 
 	@Override
 	public String getName() {

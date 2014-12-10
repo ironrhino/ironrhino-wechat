@@ -34,6 +34,7 @@ import org.ironrhino.wechat.model.WechatMediaType;
 import org.ironrhino.wechat.model.WechatMessage;
 import org.ironrhino.wechat.model.WechatRequest;
 import org.ironrhino.wechat.model.WechatResponse;
+import org.ironrhino.wechat.model.WechatTemplateMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +138,18 @@ public class Wechat {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/custom/send", json);
+		logger.info("received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		int errcode = node.get("errcode").asInt();
+		if (errcode != 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+	}
+	
+	public void sendTemplate(WechatTemplateMessage msg) throws Exception {
+		String json = msg.toString();
+		logger.info("sending: {}", json);
+		String result = invoke("/message/template/send", json);
 		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();

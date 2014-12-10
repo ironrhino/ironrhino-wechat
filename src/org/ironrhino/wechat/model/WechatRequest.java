@@ -37,6 +37,7 @@ public class WechatRequest implements Serializable {
 	private Double latitude;
 	private Double longitude;
 	private Double precision;
+	private String status;
 
 	public WechatRequest() {
 
@@ -214,6 +215,14 @@ public class WechatRequest implements Serializable {
 
 	public void setPrecision(Double precision) {
 		this.precision = precision;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	@Override
