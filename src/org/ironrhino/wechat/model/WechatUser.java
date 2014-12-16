@@ -16,6 +16,7 @@ public class WechatUser implements Serializable {
 	private String openid;
 	private String unionid;
 	private String nickname;
+	private String remark;
 	private int sex;
 	private String city;
 	private String country;
@@ -40,7 +41,11 @@ public class WechatUser implements Serializable {
 				if (name.equals("headimgurl") && StringUtils.isNotBlank(value)
 						&& !value.endsWith("/"))
 					value = value.substring(0, value.lastIndexOf('/') + 1);
-				bwi.setPropertyValue(name, value);
+				try {
+					bwi.setPropertyValue(name, value);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -70,6 +75,14 @@ public class WechatUser implements Serializable {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	public int getSex() {
