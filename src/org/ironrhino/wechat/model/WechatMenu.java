@@ -136,17 +136,7 @@ public class WechatMenu implements Serializable {
 				if (type == null)
 					throw new IllegalArgumentException(
 							"type shouldn't be blank");
-				if (type == WechatButtonType.click) {
-					if (StringUtils.isBlank(key))
-						throw new IllegalArgumentException(
-								"key shouldn't be blank");
-					else if (key.getBytes().length > 128)
-						throw new IllegalArgumentException(
-								"key shouldn't be more than 128 bytes");
-					if (StringUtils.isNotBlank(url))
-						throw new IllegalArgumentException(
-								"url should be blank,but was " + url);
-				} else if (type == WechatButtonType.view) {
+				if (type == WechatButtonType.view) {
 					if (StringUtils.isBlank(url))
 						throw new IllegalArgumentException(
 								"url shouldn't be blank");
@@ -156,6 +146,16 @@ public class WechatMenu implements Serializable {
 					if (StringUtils.isNotBlank(key))
 						throw new IllegalArgumentException(
 								"key should be blank,but was " + key);
+				} else {
+					if (StringUtils.isBlank(key))
+						throw new IllegalArgumentException(
+								"key shouldn't be blank");
+					else if (key.getBytes().length > 128)
+						throw new IllegalArgumentException(
+								"key shouldn't be more than 128 bytes");
+					if (StringUtils.isNotBlank(url))
+						throw new IllegalArgumentException(
+								"url should be blank,but was " + url);
 				}
 			}
 		}
