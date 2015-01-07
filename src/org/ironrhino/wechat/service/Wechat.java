@@ -1,6 +1,7 @@
 package org.ironrhino.wechat.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.util.Calendar;
@@ -42,6 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -137,6 +140,7 @@ public class Wechat {
 		return response;
 	}
 
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long send(WechatMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -153,6 +157,7 @@ public class Wechat {
 			return null;
 	}
 
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long sendTemplate(WechatTemplateMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -169,6 +174,7 @@ public class Wechat {
 			return null;
 	}
 
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long sendAll(WechatAllMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -185,6 +191,7 @@ public class Wechat {
 			return null;
 	}
 
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public void cancelSendAll(String msg_id) throws Exception {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("msg_id", msg_id);
@@ -292,6 +299,7 @@ public class Wechat {
 		httpClient.close();
 	}
 
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public WechatMedia uploadNews(WechatNewsMessage msg) throws Exception {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
