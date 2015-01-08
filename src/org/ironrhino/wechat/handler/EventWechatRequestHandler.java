@@ -24,6 +24,9 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 	@Autowired(required = false)
 	private List<ScancodeEventHandler> scancodeEventHandlers;
 
+	@Autowired(required = false)
+	private List<UnsubscribeEventHandler> unsubscribeEventHandlers;
+
 	@Override
 	public WechatResponse handle(WechatRequest request) {
 		if (request.getMsgType() != WechatRequestType.event)
@@ -65,7 +68,12 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 		case LOCATION:
 			break;
 		case unsubscribe:
-			break;
+			if (unsubscribeEventHandlers != null)
+				for (UnsubscribeEventHandler ueh : unsubscribeEventHandlers) {
+					WechatResponse wr = ueh.handle(request);
+					if (wr != null)
+						return wr;
+				}
 		default:
 			break;
 		}
