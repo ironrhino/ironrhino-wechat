@@ -18,6 +18,7 @@ public class WechatRequest implements Serializable {
 
 	private static final long serialVersionUID = -7515159900178523381L;
 
+	private String messageBody;
 	private Long msgId;
 	private String toUserName;
 	private String fromUserName;
@@ -34,6 +35,8 @@ public class WechatRequest implements Serializable {
 	private WechatEventType event;
 	private String eventKey;
 	private String ticket;
+	private String scanType;
+	private String scanResult;
 	private Double latitude;
 	private Double longitude;
 	private Double precision;
@@ -44,6 +47,7 @@ public class WechatRequest implements Serializable {
 	}
 
 	public WechatRequest(String xml) throws Exception {
+		this.messageBody = xml;
 		BeanWrapperImpl bwi = new BeanWrapperImpl(this);
 		Document doc = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder()
@@ -55,7 +59,19 @@ public class WechatRequest implements Serializable {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				Element tag = (Element) node;
 				String name = tag.getTagName();
-				if (name.equals("Location_X"))
+				if (name.equals("ScanCodeInfo")) {
+					NodeList subNodeList = tag.getChildNodes();
+					for (int j = 0; j < subNodeList.getLength(); j++) {
+						Node subNode = subNodeList.item(j);
+						if (subNode.getNodeType() == Node.ELEMENT_NODE) {
+							Element subTag = (Element) subNode;
+							bwi.setPropertyValue(StringUtils
+									.uncapitalize(subTag.getTagName()), subTag
+									.getTextContent());
+						}
+					}
+					continue;
+				} else if (name.equals("Location_X"))
 					name = "Latitude";
 				else if (name.equals("Location_Y"))
 					name = "Longitude";
@@ -63,6 +79,14 @@ public class WechatRequest implements Serializable {
 				bwi.setPropertyValue(StringUtils.uncapitalize(name), value);
 			}
 		}
+	}
+
+	public String getMessageBody() {
+		return messageBody;
+	}
+
+	public void setMessageBody(String messageBody) {
+		this.messageBody = messageBody;
 	}
 
 	public Long getMsgId() {
@@ -191,6 +215,22 @@ public class WechatRequest implements Serializable {
 
 	public void setTicket(String ticket) {
 		this.ticket = ticket;
+	}
+
+	public String getScanType() {
+		return scanType;
+	}
+
+	public void setScanType(String scanType) {
+		this.scanType = scanType;
+	}
+
+	public String getScanResult() {
+		return scanResult;
+	}
+
+	public void setScanResult(String scanResult) {
+		this.scanResult = scanResult;
 	}
 
 	public Double getLatitude() {
