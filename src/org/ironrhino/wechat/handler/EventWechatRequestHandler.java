@@ -21,6 +21,9 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 	@Autowired(required = false)
 	private List<ClickEventHandler> clickEventHandlers;
 
+	@Autowired(required = false)
+	private List<ScancodeEventHandler> scancodeEventHandlers;
+
 	@Override
 	public WechatResponse handle(WechatRequest request) {
 		if (request.getMsgType() != WechatRequestType.event)
@@ -50,6 +53,15 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 					}
 
 			break;
+		case scancode_push:
+		case scancode_waitmsg:
+			if (scancodeEventHandlers != null)
+				for (ScancodeEventHandler seh : scancodeEventHandlers)
+					if (seh.takeover(eventKey)) {
+						WechatResponse wr = seh.handle(eventKey, request);
+						return wr != null ? wr : WechatResponse.EMPTY;
+					}
+
 		case LOCATION:
 			break;
 		case unsubscribe:
@@ -57,7 +69,7 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 		default:
 			break;
 		}
-		return WechatResponse.EMPTY;
+		return null;
 	}
 
 }
