@@ -61,7 +61,7 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 						WechatResponse wr = seh.handle(eventKey, request);
 						return wr != null ? wr : WechatResponse.EMPTY;
 					}
-
+			break;
 		case LOCATION:
 			break;
 		case unsubscribe:
