@@ -52,6 +52,7 @@ public class WechatMenu implements Serializable {
 		return this.button.equals(that.button);
 	}
 
+	@Override
 	public int hashCode() {
 		return this.button != null ? this.button.hashCode() : 0;
 	}
@@ -170,6 +171,7 @@ public class WechatMenu implements Serializable {
 			return EqualsBuilder.reflectionEquals(this, that);
 		}
 
+		@Override
 		public int hashCode() {
 			return HashCodeBuilder.reflectionHashCode(this);
 		}

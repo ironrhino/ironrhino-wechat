@@ -61,8 +61,8 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 			if (scancodeEventHandlers != null)
 				for (ScancodeEventHandler seh : scancodeEventHandlers)
 					if (seh.takeover(eventKey)) {
-						WechatResponse wr = seh.handle(eventKey,
-								request.getScanResult(), request);
+						WechatResponse wr = seh.handle(request.getScanResult(),
+								request);
 						return wr != null ? wr : WechatResponse.EMPTY;
 					}
 			break;

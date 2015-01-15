@@ -9,7 +9,6 @@ public abstract class ScancodeEventHandler {
 		return getClass().getName().equals(key);
 	}
 
-	public abstract WechatResponse handle(String key, String result,
-			WechatRequest request);
+	public abstract WechatResponse handle(String result, WechatRequest request);
 
 }
