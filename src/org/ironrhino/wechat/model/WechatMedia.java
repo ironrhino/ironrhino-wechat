@@ -22,9 +22,13 @@ public class WechatMedia implements Serializable {
 
 	}
 
-	public WechatMedia(String json) throws Exception {
-		WechatMedia wm = JsonUtils.fromJson(json, WechatMedia.class);
-		BeanUtils.copyProperties(wm, this);
+	public WechatMedia(String json) {
+		try {
+			WechatMedia wm = JsonUtils.fromJson(json, WechatMedia.class);
+			BeanUtils.copyProperties(wm, this);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	public String getMedia_id() {

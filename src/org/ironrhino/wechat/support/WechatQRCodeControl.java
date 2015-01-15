@@ -1,5 +1,6 @@
 package org.ironrhino.wechat.support;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 
 import org.ironrhino.core.util.ErrorMessage;
@@ -17,7 +18,7 @@ public class WechatQRCodeControl {
 	private Wechat wechat;
 
 	public String createTemporary(int scene_id, int expire_seconds)
-			throws Exception {
+			throws IOException {
 		if (scene_id < 1)
 			throw new IllegalArgumentException(
 					"scene_id should be large than 0, but was " + scene_id);
@@ -31,7 +32,7 @@ public class WechatQRCodeControl {
 		return generateQRCodeImageUrl(wechat.invoke("/qrcode/create", request));
 	}
 
-	public String createPermanent(int scene_id) throws Exception {
+	public String createPermanent(int scene_id) throws IOException {
 		if (scene_id < 1 || scene_id > 100000)
 			throw new IllegalArgumentException(
 					"scene_id should be 1-100000, but was " + scene_id);
@@ -45,7 +46,7 @@ public class WechatQRCodeControl {
 	}
 
 	private static String generateQRCodeImageUrl(String result)
-			throws Exception {
+			throws IOException {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {

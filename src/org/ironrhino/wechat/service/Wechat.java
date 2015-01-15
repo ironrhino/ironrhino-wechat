@@ -122,7 +122,7 @@ public class Wechat {
 				signature);
 	}
 
-	public String reply(String request) throws Exception {
+	public String reply(String request) {
 		logger.info("received:\n{}", request);
 		String response = "";
 		WechatRequest msg = new WechatRequest(request);
@@ -141,7 +141,7 @@ public class Wechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public Long send(WechatMessage msg) throws Exception {
+	public Long send(WechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/custom/send", json);
@@ -158,7 +158,7 @@ public class Wechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public Long sendTemplate(WechatTemplateMessage msg) throws Exception {
+	public Long sendTemplate(WechatTemplateMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/template/send", json);
@@ -175,7 +175,7 @@ public class Wechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public Long sendAll(WechatAllMessage msg) throws Exception {
+	public Long sendAll(WechatAllMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/mass/sendall", json);
@@ -192,7 +192,7 @@ public class Wechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public void cancelSendAll(String msg_id) throws Exception {
+	public void cancelSendAll(String msg_id) throws IOException {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("msg_id", msg_id);
 		String request = JsonUtils.toJson(map);
@@ -207,7 +207,7 @@ public class Wechat {
 	}
 
 	public WechatMedia upload(File file, WechatMediaType mediaType)
-			throws Exception {
+			throws IOException {
 		if (!file.isFile())
 			throw new ErrorMessage(file + " is not a file");
 		if (file.length() > mediaType.getMaxFileLength())
@@ -235,7 +235,7 @@ public class Wechat {
 	}
 
 	public WechatMedia uploadVideo(String media_id, String title,
-			String description) throws Exception {
+			String description) throws IOException {
 		String url = "http://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
 				+ fetchAccessToken();
 		Map<String, String> map = new LinkedHashMap<>();
@@ -249,7 +249,7 @@ public class Wechat {
 		return new WechatMedia(result);
 	}
 
-	public void download(String mediaId, OutputStream os) throws Exception {
+	public void download(String mediaId, OutputStream os) throws IOException {
 		StringBuilder sb = new StringBuilder(
 				"http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
@@ -279,7 +279,7 @@ public class Wechat {
 	}
 
 	public void download(String mediaId, HttpServletResponse resp)
-			throws Exception {
+			throws IOException {
 		StringBuilder sb = new StringBuilder(
 				"http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
@@ -300,7 +300,7 @@ public class Wechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public WechatMedia uploadNews(WechatNewsMessage msg) throws Exception {
+	public WechatMedia uploadNews(WechatNewsMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/media/uploadnews", json);
@@ -313,7 +313,7 @@ public class Wechat {
 	}
 
 	protected String invoke(String path, String request, int retryTimes)
-			throws Exception {
+			throws IOException {
 		StringBuilder sb = new StringBuilder(apiBaseUrl);
 		sb.append(path).append(path.indexOf('?') > -1 ? "&" : "?")
 				.append("access_token=").append(fetchAccessToken());
@@ -354,11 +354,11 @@ public class Wechat {
 
 	}
 
-	public String invoke(String path, String request) throws Exception {
+	public String invoke(String path, String request) throws IOException {
 		return invoke(path, request, 3);
 	}
 
-	protected String fetchAccessToken() throws Exception {
+	protected String fetchAccessToken() throws IOException {
 		String accessToken = (String) cacheManager.get(getAppId(),
 				CACHE_NAMESPACE_ACCESSTOKEN);
 		if (accessToken != null)

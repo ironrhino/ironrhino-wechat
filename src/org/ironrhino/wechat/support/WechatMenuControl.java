@@ -1,5 +1,7 @@
 package org.ironrhino.wechat.support;
 
+import java.io.IOException;
+
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.JsonUtils;
 import org.ironrhino.wechat.model.WechatMenu;
@@ -15,7 +17,7 @@ public class WechatMenuControl {
 	@Autowired
 	private Wechat wechat;
 
-	public void create(WechatMenu menu) throws Exception {
+	public void create(WechatMenu menu) throws IOException {
 		menu.validate();
 		try {
 			if (get().equals(menu))
@@ -31,7 +33,7 @@ public class WechatMenuControl {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
-	public WechatMenu get() throws Exception {
+	public WechatMenu get() throws IOException {
 		String result = wechat.invoke("/menu/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
@@ -40,7 +42,7 @@ public class WechatMenuControl {
 		return new WechatMenu(node.get("menu").toString());
 	}
 
-	public void delete() throws Exception {
+	public void delete() throws IOException {
 		String result = wechat.invoke("/menu/delete", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();

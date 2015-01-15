@@ -1,5 +1,6 @@
 package org.ironrhino.wechat.support;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +21,7 @@ public class WechatUserControl {
 	@Autowired
 	private Wechat wechat;
 
-	public WechatUser get(String openid) throws Exception {
+	public WechatUser get(String openid) throws IOException {
 		String result = wechat.invoke("/user/info?lang=zh_CN&openid=" + openid,
 				null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
@@ -30,7 +31,7 @@ public class WechatUserControl {
 		return new WechatUser(result);
 	}
 
-	public List<String> list() throws Exception {
+	public List<String> list() throws IOException {
 		List<String> list = new ArrayList<String>();
 		String result = wechat.invoke("/user/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);

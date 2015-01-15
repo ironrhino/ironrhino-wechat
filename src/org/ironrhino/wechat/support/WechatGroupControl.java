@@ -1,5 +1,6 @@
 package org.ironrhino.wechat.support;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,7 @@ public class WechatGroupControl {
 	@Autowired
 	private Wechat wechat;
 
-	public WechatGroup create(String name) throws Exception {
+	public WechatGroup create(String name) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"group\":{\"name\":\"");
 		sb.append(name);
@@ -37,7 +38,7 @@ public class WechatGroupControl {
 		return group;
 	}
 
-	public void rename(int id, String name) throws Exception {
+	public void rename(int id, String name) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"group\":{\"id\":");
 		sb.append(id);
@@ -52,7 +53,7 @@ public class WechatGroupControl {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
-	public List<WechatGroup> get() throws Exception {
+	public List<WechatGroup> get() throws IOException {
 		String result = wechat.invoke("/groups/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
@@ -73,7 +74,7 @@ public class WechatGroupControl {
 		return list;
 	}
 
-	public int getGroupId(String openid) throws Exception {
+	public int getGroupId(String openid) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"openid\":\"");
 		sb.append(openid);
@@ -87,7 +88,7 @@ public class WechatGroupControl {
 		return node.get("groupid").asInt();
 	}
 
-	public void move(String openid, String toGroupId) throws Exception {
+	public void move(String openid, String toGroupId) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"openid\":\"");
 		sb.append(openid);

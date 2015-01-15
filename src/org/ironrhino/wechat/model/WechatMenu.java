@@ -20,9 +20,13 @@ public class WechatMenu implements Serializable {
 
 	}
 
-	public WechatMenu(String json) throws Exception {
-		WechatMenu wm = JsonUtils.fromJson(json, WechatMenu.class);
-		BeanUtils.copyProperties(wm, this);
+	public WechatMenu(String json) {
+		try {
+			WechatMenu wm = JsonUtils.fromJson(json, WechatMenu.class);
+			BeanUtils.copyProperties(wm, this);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	public List<WechatButton> getButton() {

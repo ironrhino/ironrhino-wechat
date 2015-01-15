@@ -1,9 +1,9 @@
 package org.ironrhino.wechat.handler;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.ironrhino.core.cache.CacheManager;
-import org.ironrhino.wechat.handler.ScanEventHandler;
 import org.ironrhino.wechat.model.WechatRequest;
 import org.ironrhino.wechat.model.WechatResponse;
 import org.ironrhino.wechat.service.Wechat;
@@ -73,7 +73,7 @@ public abstract class TemporaryScanEventHandler extends ScanEventHandler {
 		return eventKey;
 	}
 
-	public String createQRCode(String businessKey) throws Exception {
+	public String createQRCode(String businessKey) throws IOException {
 		String qrcode = (String) cacheManager.get(getCacheKeyPrefix()
 				+ businessKey, getCacheNamespace());
 		if (qrcode != null)

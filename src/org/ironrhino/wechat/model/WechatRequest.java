@@ -46,12 +46,16 @@ public class WechatRequest implements Serializable {
 
 	}
 
-	public WechatRequest(String xml) throws Exception {
+	public WechatRequest(String xml) {
 		this.messageBody = xml;
 		BeanWrapperImpl bwi = new BeanWrapperImpl(this);
-		Document doc = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder()
-				.parse(new InputSource(new StringReader(xml)));
+		Document doc;
+		try {
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+					.parse(new InputSource(new StringReader(xml)));
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 		Element element = doc.getDocumentElement();
 		NodeList nl = element.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
