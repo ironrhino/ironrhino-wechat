@@ -4,12 +4,11 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ironrhino.core.model.Displayable;
+import org.ironrhino.core.struts.I18N;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.util.LocalizedTextUtil;
 
 public enum WechatMessageType implements Displayable {
 
@@ -106,8 +105,7 @@ public enum WechatMessageType implements Displayable {
 	@Override
 	public String getDisplayName() {
 		try {
-			return LocalizedTextUtil.findText(getClass(), name(), ActionContext
-					.getContext().getLocale(), name(), null);
+			return I18N.getText(getClass(), name());
 		} catch (Exception e) {
 			return name();
 		}
