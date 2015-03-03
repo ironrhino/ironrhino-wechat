@@ -80,7 +80,11 @@ public class WechatRequest implements Serializable {
 				else if (name.equals("Location_Y"))
 					name = "Longitude";
 				String value = tag.getTextContent();
-				bwi.setPropertyValue(StringUtils.uncapitalize(name), value);
+				try {
+					bwi.setPropertyValue(StringUtils.uncapitalize(name), value);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
