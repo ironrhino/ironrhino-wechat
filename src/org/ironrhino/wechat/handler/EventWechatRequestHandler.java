@@ -25,6 +25,9 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 	private List<ScancodeEventHandler> scancodeEventHandlers;
 
 	@Autowired(required = false)
+	private List<PhotoEventHandler> photoEventHandlers;
+
+	@Autowired(required = false)
 	private List<UnsubscribeEventHandler> unsubscribeEventHandlers;
 
 	@Override
@@ -63,6 +66,15 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 					if (seh.takeover(eventKey)) {
 						WechatResponse wr = seh.handle(request.getScanResult(),
 								request);
+						return wr != null ? wr : WechatResponse.EMPTY;
+					}
+			break;
+		case pic_photo_or_album:
+		case pic_sysphoto:
+			if (photoEventHandlers != null)
+				for (PhotoEventHandler peh : photoEventHandlers)
+					if (peh.takeover(eventKey)) {
+						WechatResponse wr = peh.handle(request);
 						return wr != null ? wr : WechatResponse.EMPTY;
 					}
 			break;
