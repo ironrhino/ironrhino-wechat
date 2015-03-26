@@ -56,7 +56,6 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-core-2.3.20.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-sitemesh-plugin-2.3.20.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-spring-plugin-2.3.20.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/xmemcached-1.4.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/xwork-core-2.3.20.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpmime-4.4.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-security-core-3.2.6.jar"/>

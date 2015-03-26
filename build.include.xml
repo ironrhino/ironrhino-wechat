@@ -6,7 +6,7 @@
 	</target>
 
 	<target name="post-jar">
-		<jar jarfile="${target.dir}/ironrhino-wechat-1.0.jar" basedir="${classes.dir}" includes="org/ironrhino/wechat/**,com/qq/**" />
+		<jar jarfile="${target.dir}/ironrhino-wechat-1.0.jar" basedir="${classes.dir}" includes="org/ironrhino/wechat/**,com/qq/**,resources/view/**" />
 	</target>
 
 </project>
