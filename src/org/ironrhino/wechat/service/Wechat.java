@@ -26,6 +26,8 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
+import org.ironrhino.core.metadata.Setup;
+import org.ironrhino.core.metadata.Trigger;
 import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
@@ -70,6 +72,12 @@ public class Wechat {
 
 	@Value("${wechat.appSecret:secret}")
 	private String appSecret;
+
+	@Value("${wechat.industryId1:}")
+	private String industryId1 = "1";
+
+	@Value("${wechat.industryId2:}")
+	private String industryId2 = "4";
 
 	@Autowired
 	private List<WechatRequestHandler> handlers;
@@ -310,6 +318,28 @@ public class Wechat {
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 		return new WechatMedia(result);
+	}
+
+	@Trigger
+	@Setup
+	public void setIndustry() throws IOException {
+		Map<String, String> msg = new LinkedHashMap<String, String>();
+		if (StringUtils.isNotBlank(industryId1))
+			msg.put("industry_id1", industryId1);
+		if (StringUtils.isNotBlank(industryId2))
+			msg.put("industry_id2", industryId2);
+		if (!msg.isEmpty()) {
+			String json = JsonUtils.toJson(msg);
+			logger.info("sending: {}", json);
+			String result = invoke("/template/api_set_industry", json);
+			logger.info("received: " + result);
+			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+			int errcode = node.get("errcode").asInt();
+			if (errcode != 0)
+				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+						node.get("errcode").asText(),
+						node.get("errmsg").asText() });
+		}
 	}
 
 	protected String invoke(String path, String request, int retryTimes)
