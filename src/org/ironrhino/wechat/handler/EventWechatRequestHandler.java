@@ -38,17 +38,20 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 		switch (request.getEvent()) {
 		case SCAN:
 		case subscribe:
-			if (eventKey.startsWith("qrscene_"))
-				eventKey = eventKey.substring(eventKey.indexOf('_') + 1);
-			if (StringUtils.isNumeric(eventKey)) {
-				int key = Integer.valueOf(eventKey);
-				if (scanEventHandlers != null)
-					for (ScanEventHandler seh : scanEventHandlers)
-						if (seh.takeover(key)) {
-							WechatResponse wr = seh.handle(key, request);
-							return wr != null ? wr : WechatResponse.EMPTY;
-						}
+			int key = 0;
+			if (StringUtils.isNotBlank(eventKey)) {
+				if (eventKey.startsWith("qrscene_"))
+					eventKey = eventKey.substring(eventKey.indexOf('_') + 1);
+				if (StringUtils.isNumeric(eventKey)) {
+					key = Integer.valueOf(eventKey);
+				}
 			}
+			if (scanEventHandlers != null)
+				for (ScanEventHandler seh : scanEventHandlers)
+					if (seh.takeover(key)) {
+						WechatResponse wr = seh.handle(key, request);
+						return wr != null ? wr : WechatResponse.EMPTY;
+					}
 			break;
 		case CLICK:
 			if (clickEventHandlers != null)
