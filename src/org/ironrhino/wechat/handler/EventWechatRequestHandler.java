@@ -22,6 +22,9 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 	private List<ClickEventHandler> clickEventHandlers;
 
 	@Autowired(required = false)
+	private List<LocationEventHandler> locationEventHandlers;
+
+	@Autowired(required = false)
 	private List<ScancodeEventHandler> scancodeEventHandlers;
 
 	@Autowired(required = false)
@@ -62,6 +65,17 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 					}
 
 			break;
+		case LOCATION:
+		case location_select:
+			if (locationEventHandlers != null)
+				for (LocationEventHandler leh : locationEventHandlers)
+					if (leh.takeover(eventKey)) {
+						WechatResponse wr = leh.handle(request.getLatitude(),
+								request.getLongitude(), request);
+						return wr != null ? wr : WechatResponse.EMPTY;
+					}
+
+			break;
 		case scancode_push:
 		case scancode_waitmsg:
 			if (scancodeEventHandlers != null)
@@ -81,8 +95,7 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 						return wr != null ? wr : WechatResponse.EMPTY;
 					}
 			break;
-		case LOCATION:
-			break;
+
 		case unsubscribe:
 			if (unsubscribeEventHandlers != null)
 				for (UnsubscribeEventHandler ueh : unsubscribeEventHandlers) {
