@@ -55,7 +55,7 @@ public class WechatUserControl {
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 		WechatUserList wul = new WechatUserList();
-		int total = node.get("total").asInt();
+		wul.setTotal(node.get("total").asInt());
 		int count = node.get("count").asInt();
 		if (count == 0)
 			return wul;
@@ -64,7 +64,6 @@ public class WechatUserControl {
 		Iterator<JsonNode> it = node.get("data").get("openid").iterator();
 		while (it.hasNext())
 			list.add(it.next().textValue());
-		wul.setTotal(total);
 		wul.setOpenids(list);
 		wul.setNext_openid(next_openid);
 		return wul;
