@@ -59,13 +59,12 @@ public class WechatUserControl {
 		int count = node.get("count").asInt();
 		if (count == 0)
 			return wul;
-		next_openid = node.get("next_openid").asText();
+		wul.setNext_openid(node.get("next_openid").asText());
 		List<String> list = new ArrayList<String>();
 		Iterator<JsonNode> it = node.get("data").get("openid").iterator();
 		while (it.hasNext())
 			list.add(it.next().textValue());
 		wul.setOpenids(list);
-		wul.setNext_openid(next_openid);
 		return wul;
 	}
 }
