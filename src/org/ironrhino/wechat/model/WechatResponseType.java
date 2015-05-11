@@ -112,7 +112,7 @@ public enum WechatResponseType implements Displayable {
 			return sb.toString();
 		}
 	},
-	picurl {
+	news {
 		@Override
 		public String toXml(WechatResponse msg) {
 			if (msg.getArticles().size() > 10)
