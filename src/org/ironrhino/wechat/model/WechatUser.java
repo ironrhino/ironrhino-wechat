@@ -5,11 +5,15 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ironrhino.core.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapperImpl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class WechatUser implements Serializable {
+
+	private static Logger logger = LoggerFactory.getLogger(WechatUser.class);
 
 	private static final long serialVersionUID = -2575653400669416221L;
 
@@ -45,7 +49,7 @@ public class WechatUser implements Serializable {
 				try {
 					bwi.setPropertyValue(name, value);
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					logger.error(e.getMessage(), e);
 				}
 			}
 		} catch (Exception e) {
