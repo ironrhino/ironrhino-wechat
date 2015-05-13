@@ -11,12 +11,15 @@ import org.ironrhino.corpwechat.model.CorpWechatTag;
 import org.ironrhino.corpwechat.model.CorpWechatUser;
 import org.ironrhino.corpwechat.service.CorpWechat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
+@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 public class CorpWechatTagControl {
 
 	@Autowired

@@ -12,11 +12,14 @@ import org.ironrhino.wechat.model.WechatUser;
 import org.ironrhino.wechat.model.WechatUserList;
 import org.ironrhino.wechat.service.Wechat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
+@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 public class WechatUserControl {
 
 	@Autowired
