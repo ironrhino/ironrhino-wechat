@@ -2,7 +2,7 @@ package org.ironrhino.corpwechat.model;
 
 import java.io.Serializable;
 
-public class WechatDepartment implements Serializable {
+public class CorpWechatDepartment implements Serializable {
 
 	private static final long serialVersionUID = -2244954252146981392L;
 
