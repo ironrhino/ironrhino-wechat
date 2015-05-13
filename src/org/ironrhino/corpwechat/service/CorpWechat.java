@@ -141,6 +141,17 @@ public class CorpWechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+	public void confirm(String userid) throws IOException {
+		String result = invoke("/user/authsucc?userid=" + userid, null);
+		logger.info("received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		int errcode = node.get("errcode").asInt();
+		if (errcode != 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+	}
+
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long send(WechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
