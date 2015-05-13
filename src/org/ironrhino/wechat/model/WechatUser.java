@@ -15,6 +15,7 @@ public class WechatUser implements Serializable {
 
 	private String openid;
 	private String unionid;
+	private Integer groupid;
 	private String nickname;
 	private String remark;
 	private int sex;
@@ -67,6 +68,14 @@ public class WechatUser implements Serializable {
 
 	public void setUnionid(String unionid) {
 		this.unionid = unionid;
+	}
+
+	public Integer getGroupid() {
+		return groupid;
+	}
+
+	public void setGroupid(Integer groupid) {
+		this.groupid = groupid;
 	}
 
 	public String getNickname() {
