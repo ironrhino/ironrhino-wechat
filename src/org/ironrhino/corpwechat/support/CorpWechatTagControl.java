@@ -69,7 +69,7 @@ public class CorpWechatTagControl {
 		if (errcode != 0)
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return JsonUtils.fromJson(JsonUtils.toJson(node.get("taglist")),
+		return JsonUtils.fromJson(node.get("taglist").toString(),
 				new TypeReference<List<CorpWechatTag>>() {
 				});
 	}
@@ -81,7 +81,7 @@ public class CorpWechatTagControl {
 		if (errcode != 0)
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return JsonUtils.fromJson(JsonUtils.toJson(node.get("userlist")),
+		return JsonUtils.fromJson(node.get("userlist").toString(),
 				new TypeReference<List<CorpWechatUser>>() {
 				});
 	}

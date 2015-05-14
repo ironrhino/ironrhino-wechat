@@ -23,7 +23,7 @@ public class CorpWechatUserControl {
 
 	@Autowired
 	private CorpWechat wechat;
-	
+
 	public void authsucc(String userid) throws IOException {
 		String result = wechat.invoke("/user/authsucc?userid=" + userid, null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
@@ -102,7 +102,7 @@ public class CorpWechatUserControl {
 		if (errcode != 0)
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return JsonUtils.fromJson(JsonUtils.toJson(node.get("userlist")),
+		return JsonUtils.fromJson(node.get("userlist").toString(),
 				new TypeReference<List<CorpWechatUser>>() {
 				});
 	}

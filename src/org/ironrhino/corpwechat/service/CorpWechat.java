@@ -30,15 +30,13 @@ import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
+import org.ironrhino.corpwechat.model.CorpWechatMessage;
 import org.ironrhino.wechat.handler.WechatRequestHandler;
-import org.ironrhino.wechat.model.WechatAllMessage;
 import org.ironrhino.wechat.model.WechatMedia;
 import org.ironrhino.wechat.model.WechatMediaType;
-import org.ironrhino.wechat.model.WechatMessage;
 import org.ironrhino.wechat.model.WechatNewsMessage;
 import org.ironrhino.wechat.model.WechatRequest;
 import org.ironrhino.wechat.model.WechatResponse;
-import org.ironrhino.wechat.model.WechatTemplateMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,63 +139,10 @@ public class CorpWechat {
 	}
 
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public Long send(WechatMessage msg) throws IOException {
+	public void send(CorpWechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
 		String result = invoke("/message/custom/send", json);
-		logger.info("received: {}", result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		int errcode = node.get("errcode").asInt();
-		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
-		else if (node.get("msg_id") != null)
-			return node.get("msg_id").asLong();
-		else
-			return null;
-	}
-
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public Long sendTemplate(WechatTemplateMessage msg) throws IOException {
-		String json = msg.toString();
-		logger.info("sending: {}", json);
-		String result = invoke("/message/template/send", json);
-		logger.info("received: {}", result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		int errcode = node.get("errcode").asInt();
-		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
-		else if (node.get("msg_id") != null)
-			return node.get("msg_id").asLong();
-		else
-			return null;
-	}
-
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public Long sendAll(WechatAllMessage msg) throws IOException {
-		String json = msg.toString();
-		logger.info("sending: {}", json);
-		String result = invoke("/message/mass/sendall", json);
-		logger.info("received: {}", result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		int errcode = node.get("errcode").asInt();
-		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
-		else if (node.get("msg_id") != null)
-			return node.get("msg_id").asLong();
-		else
-			return null;
-	}
-
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public void cancelSendAll(String msg_id) throws IOException {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put("msg_id", msg_id);
-		String request = JsonUtils.toJson(map);
-		logger.info("sending: {}", request);
-		String result = invoke("/message/mass/delete", request);
 		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
@@ -213,8 +158,8 @@ public class CorpWechat {
 		if (file.length() > mediaType.getMaxFileLength())
 			throw new ErrorMessage(file + " is large than "
 					+ mediaType.getMaxFileLength());
-		StringBuilder sb = new StringBuilder(
-				"http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=");
+		StringBuilder sb = new StringBuilder(apiBaseUrl);
+		sb.append("/media/upload?access_token=");
 		sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
 		HttpPost httppost = new HttpPost(sb.toString());
 		FileBody media = new FileBody(file);
@@ -236,7 +181,7 @@ public class CorpWechat {
 
 	public WechatMedia uploadVideo(String media_id, String title,
 			String description) throws IOException {
-		String url = "http://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
+		String url = apiBaseUrl + "/media/uploadvideo?access_token="
 				+ fetchAccessToken();
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("media_id", media_id);
@@ -250,8 +195,8 @@ public class CorpWechat {
 	}
 
 	public void download(String mediaId, OutputStream os) throws IOException {
-		StringBuilder sb = new StringBuilder(
-				"http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+		StringBuilder sb = new StringBuilder(apiBaseUrl);
+		sb.append("/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 		HttpGet httpGet = new HttpGet(sb.toString());
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
@@ -280,8 +225,8 @@ public class CorpWechat {
 
 	public void download(String mediaId, HttpServletResponse resp)
 			throws IOException {
-		StringBuilder sb = new StringBuilder(
-				"http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+		StringBuilder sb = new StringBuilder(apiBaseUrl);
+		sb.append("/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 		HttpGet httpGet = new HttpGet(sb.toString());
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);

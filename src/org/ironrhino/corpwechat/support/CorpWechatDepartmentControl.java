@@ -65,7 +65,7 @@ public class CorpWechatDepartmentControl {
 		if (errcode != 0)
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return JsonUtils.fromJson(JsonUtils.toJson(node.get("department")),
+		return JsonUtils.fromJson(node.get("department").toString(),
 				new TypeReference<List<CorpWechatDepartment>>() {
 				});
 	}
