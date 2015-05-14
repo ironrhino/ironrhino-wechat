@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.lang3.StringUtils;
 import org.ironrhino.core.model.Displayable;
 import org.ironrhino.core.struts.I18N;
-import org.ironrhino.wechat.model.WechatResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,9 +17,9 @@ public enum CorpWechatMessageType implements Displayable {
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
 			String content = msg.getContent();
 			try {
-				if (content.getBytes("UTF-8").length > WechatResponse.CONTENT_MAX_BYTES)
+				if (content.getBytes("UTF-8").length > CorpWechatResponse.CONTENT_MAX_BYTES)
 					content = content.substring(0,
-							WechatResponse.CONTENT_MAX_BYTES / 3);
+							CorpWechatResponse.CONTENT_MAX_BYTES / 3);
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}

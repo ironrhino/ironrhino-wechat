@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -30,13 +29,12 @@ import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
+import org.ironrhino.corpwechat.handler.CorpWechatRequestHandler;
+import org.ironrhino.corpwechat.model.CorpWechatMedia;
+import org.ironrhino.corpwechat.model.CorpWechatMediaType;
 import org.ironrhino.corpwechat.model.CorpWechatMessage;
-import org.ironrhino.wechat.handler.WechatRequestHandler;
-import org.ironrhino.wechat.model.WechatMedia;
-import org.ironrhino.wechat.model.WechatMediaType;
-import org.ironrhino.wechat.model.WechatNewsMessage;
-import org.ironrhino.wechat.model.WechatRequest;
-import org.ironrhino.wechat.model.WechatResponse;
+import org.ironrhino.corpwechat.model.CorpWechatRequest;
+import org.ironrhino.corpwechat.model.CorpWechatResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +68,7 @@ public class CorpWechat {
 	private String corpSecret;
 
 	@Autowired
-	private List<WechatRequestHandler> handlers;
+	private List<CorpWechatRequestHandler> handlers;
 
 	@Autowired
 	private CacheManager cacheManager;
@@ -123,12 +121,12 @@ public class CorpWechat {
 	public String reply(String request) {
 		logger.info("received:\n{}", request);
 		String response = "";
-		WechatRequest msg = new WechatRequest(request);
+		CorpWechatRequest msg = new CorpWechatRequest(request);
 		if (handlers != null) {
-			for (WechatRequestHandler handler : handlers) {
-				WechatResponse rmsg = handler.handle(msg);
+			for (CorpWechatRequestHandler handler : handlers) {
+				CorpWechatResponse rmsg = handler.handle(msg);
 				if (rmsg != null) {
-					if (rmsg != WechatResponse.EMPTY)
+					if (rmsg != CorpWechatResponse.EMPTY)
 						response = rmsg.toString();
 					break;
 				}
@@ -151,7 +149,7 @@ public class CorpWechat {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
-	public WechatMedia upload(File file, WechatMediaType mediaType)
+	public CorpWechatMedia upload(File file, CorpWechatMediaType mediaType)
 			throws IOException {
 		if (!file.isFile())
 			throw new ErrorMessage(file + " is not a file");
@@ -176,22 +174,7 @@ public class CorpWechat {
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return new WechatMedia(result);
-	}
-
-	public WechatMedia uploadVideo(String media_id, String title,
-			String description) throws IOException {
-		String url = apiBaseUrl + "/media/uploadvideo?access_token="
-				+ fetchAccessToken();
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put("media_id", media_id);
-		map.put("title", title);
-		map.put("description", description);
-		String request = JsonUtils.toJson(map);
-		logger.info("post to {}: {}", url, request);
-		String result = HttpClientUtils.post(url, request);
-		logger.info("received: " + result);
-		return new WechatMedia(result);
+		return new CorpWechatMedia(result);
 	}
 
 	public void download(String mediaId, OutputStream os) throws IOException {
@@ -242,19 +225,6 @@ public class CorpWechat {
 		IOUtils.copy(entity.getContent(), resp.getOutputStream());
 		response.close();
 		httpClient.close();
-	}
-
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
-	public WechatMedia uploadNews(WechatNewsMessage msg) throws IOException {
-		String json = msg.toString();
-		logger.info("sending: {}", json);
-		String result = invoke("/media/uploadnews", json);
-		logger.info("received: " + result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return new WechatMedia(result);
 	}
 
 	protected String invoke(String path, String request, int retryTimes)

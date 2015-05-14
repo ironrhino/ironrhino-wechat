@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.JsonUtils;
+import org.ironrhino.corpwechat.model.CorpWechatMenu;
 import org.ironrhino.corpwechat.service.CorpWechat;
-import org.ironrhino.wechat.model.WechatMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -20,7 +20,7 @@ public class CorpWechatMenuControl {
 	@Autowired
 	private CorpWechat wechat;
 
-	public void create(Integer agentid, WechatMenu menu) throws IOException {
+	public void create(Integer agentid, CorpWechatMenu menu) throws IOException {
 		menu.validate();
 		try {
 			if (get(agentid).equals(menu))
@@ -37,13 +37,13 @@ public class CorpWechatMenuControl {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
-	public WechatMenu get(Integer agentid) throws IOException {
+	public CorpWechatMenu get(Integer agentid) throws IOException {
 		String result = wechat.invoke("/menu/get?agentid=" + agentid, null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
-		return new WechatMenu(node.get("menu").toString());
+		return new CorpWechatMenu(node.get("menu").toString());
 	}
 
 	public void delete(Integer agentid) throws IOException {
