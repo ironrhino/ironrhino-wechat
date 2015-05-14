@@ -14,7 +14,7 @@ public enum WechatMessageType implements Displayable {
 
 	text {
 		@Override
-		protected ObjectNode buildObjectNode(WechatMessage msg) {
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
 			String content = msg.getContent();
 			try {
 				if (content.getBytes("UTF-8").length > WechatResponse.CONTENT_MAX_BYTES)
@@ -23,66 +23,49 @@ public enum WechatMessageType implements Displayable {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			ObjectNode object = mapper.createObjectNode();
-			object.put("touser", msg.getTouser()).put("msgtype", name())
-					.with("text").put("content", content);
-			return object;
+			object.with(name()).put("content", content);
 		}
 	},
 	image {
 		@Override
-		protected ObjectNode buildObjectNode(WechatMessage msg) {
-			ObjectNode object = mapper.createObjectNode();
-			object.put("touser", msg.getTouser()).put("msgtype", name())
-					.with("image").put("media_id", msg.getMedia_id());
-			return object;
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			object.with(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	voice {
 		@Override
-		protected ObjectNode buildObjectNode(WechatMessage msg) {
-			ObjectNode object = mapper.createObjectNode();
-			object.put("touser", msg.getTouser()).put("msgtype", name())
-					.with("voice").put("media_id", msg.getMedia_id());
-			return object;
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			object.with(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	video {
 		@Override
-		protected ObjectNode buildObjectNode(WechatMessage msg) {
-			ObjectNode object = mapper.createObjectNode();
-			ObjectNode video = object.put("touser", msg.getTouser())
-					.put("msgtype", name()).with("video")
-					.put("media_id", msg.getMedia_id());
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			ObjectNode video = object.with(name()).put("media_id",
+					msg.getMedia_id());
 			if (StringUtils.isNotBlank(msg.getTitle()))
 				video.put("title", msg.getTitle());
 			if (StringUtils.isNotBlank(msg.getDescription()))
 				video.put("description", msg.getDescription());
-			return object;
 		}
 	},
 	music {
 		@Override
-		protected ObjectNode buildObjectNode(WechatMessage msg) {
-			ObjectNode object = mapper.createObjectNode();
-			object.put("touser", msg.getTouser()).put("msgtype", name())
-					.with("video").put("title", msg.getTitle())
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			object.with(name()).put("title", msg.getTitle())
 					.put("description", msg.getDescription())
 					.put("musicurl", msg.getMusicurl())
 					.put("hqmusicurl", msg.getHqmusicurl())
 					.put("thumb_media_id", msg.getThumb_media_id());
-			return object;
 		}
 	},
 	news {
 		@Override
-		protected ObjectNode buildObjectNode(WechatMessage msg) {
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
 			if (msg.getArticles().size() > 10)
 				throw new IllegalArgumentException(
 						"article size can not large than 10");
-			ObjectNode object = mapper.createObjectNode();
-			ArrayNode articles = object.put("touser", msg.getTouser())
-					.put("msgtype", name()).with("news").putArray("articles");
+			ArrayNode articles = object.with(name()).putArray("articles");
 			for (WechatArticle article : msg.getArticles()) {
 				ObjectNode item = mapper.createObjectNode()
 						.put("title", article.getTitle())
@@ -91,7 +74,6 @@ public enum WechatMessageType implements Displayable {
 						.put("picurl", article.getPicurl());
 				articles.add(item);
 			}
-			return object;
 		}
 	};
 
@@ -116,10 +98,13 @@ public enum WechatMessageType implements Displayable {
 		return getDisplayName();
 	}
 
-	protected abstract ObjectNode buildObjectNode(WechatMessage msg);
+	protected abstract void buildObjectNode(ObjectNode object, WechatMessage msg);
 
 	public String toJson(WechatMessage msg) {
-		return buildObjectNode(msg).toString();
+		ObjectNode object = mapper.createObjectNode();
+		object.put("touser", msg.getTouser()).put("msgtype", name());
+		buildObjectNode(object, msg);
+		return object.toString();
 	}
 
 }
