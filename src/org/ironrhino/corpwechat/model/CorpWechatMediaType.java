@@ -5,8 +5,8 @@ import org.ironrhino.core.struts.I18N;
 
 public enum CorpWechatMediaType implements Displayable {
 
-	image(128 * 1024), voice(256 * 1024), video(1024 * 1024), thumb(64 * 1024), news(
-			Integer.MAX_VALUE);
+	image(1024 * 1024), voice(2 * 1024 * 1024), video(10 * 1024 * 1024), file(
+			10 * 1024 * 1024);
 
 	private int maxFileLength;
 
