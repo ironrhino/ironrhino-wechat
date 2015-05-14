@@ -33,6 +33,14 @@ public class CorpWechatUserControl {
 					node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
+	public String getUseridByCode(Integer agentid, String code)
+			throws IOException {
+		String result = wechat.invoke("/user/getuserinfo?agentid=" + agentid
+				+ "&code=" + code, null);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		return node.get("UserId").asText();
+	}
+
 	public void create(CorpWechatUser user) throws IOException {
 		String request = JsonUtils.toJson(user);
 		String result = wechat.invoke("/user/create", request);
