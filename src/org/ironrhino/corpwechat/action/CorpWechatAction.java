@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.struts2.ServletActionContext;
 import org.ironrhino.core.metadata.AutoConfig;
 import org.ironrhino.core.struts.BaseAction;
-import org.ironrhino.core.util.XmlUtils;
 import org.ironrhino.corpwechat.service.CorpWechat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -70,12 +69,8 @@ public class CorpWechatAction extends BaseAction {
 		WXBizMsgCrypt wxBizMsgCrypt = new WXBizMsgCrypt(wechat.getToken(),
 				wechat.getEncodingAesKey(), wechat.getCorpId());
 		if (StringUtils.isNotBlank(echostr)) {
-			if (!wechat.verifySignature(timestamp, nonce, echostr,
-					msg_signature))
-				return NONE;
-			echostr = wxBizMsgCrypt.decryptMsg(msg_signature, timestamp, nonce,
+			echostr = wxBizMsgCrypt.verifyURL(msg_signature, timestamp, nonce,
 					echostr);
-			echostr = XmlUtils.eval("/msg", echostr);
 			ServletActionContext.getResponse().getWriter().write(echostr);
 			return NONE;
 		} else if (StringUtils.isNotBlank(requestBody)) {
