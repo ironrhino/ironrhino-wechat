@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +24,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
-import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
@@ -103,21 +101,6 @@ public class CorpWechat {
 
 	public void setCorpSecret(String corpSecret) {
 		this.corpSecret = corpSecret;
-	}
-
-	public boolean verifySignature(String timestamp, String nonce, String msg,
-			String msg_signature) {
-		if (StringUtils.isBlank(timestamp) || StringUtils.isBlank(nonce)
-				|| StringUtils.isBlank(msg)
-				|| StringUtils.isBlank(msg_signature))
-			return false;
-		TreeSet<String> set = new TreeSet<String>();
-		set.add(getToken());
-		set.add(timestamp);
-		set.add(nonce);
-		set.add(msg);
-		return CodecUtils.shaHex(StringUtils.join(set.toArray())).equals(
-				msg_signature);
 	}
 
 	public String reply(String request) {

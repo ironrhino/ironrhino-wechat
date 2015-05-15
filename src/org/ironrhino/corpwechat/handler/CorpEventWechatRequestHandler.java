@@ -39,7 +39,7 @@ public class CorpEventWechatRequestHandler implements CorpWechatRequestHandler {
 			return null;
 		String eventKey = request.getEventKey();
 		switch (request.getEvent()) {
-		case SCAN:
+		case scan:
 		case subscribe:
 			int key = 0;
 			if (StringUtils.isNotBlank(eventKey)) {
@@ -56,7 +56,7 @@ public class CorpEventWechatRequestHandler implements CorpWechatRequestHandler {
 						return wr != null ? wr : CorpWechatResponse.EMPTY;
 					}
 			break;
-		case CLICK:
+		case click:
 			if (clickEventHandlers != null)
 				for (CorpClickEventHandler ceh : clickEventHandlers)
 					if (ceh.takeover(eventKey)) {
@@ -65,7 +65,7 @@ public class CorpEventWechatRequestHandler implements CorpWechatRequestHandler {
 					}
 
 			break;
-		case LOCATION:
+		case location:
 		case location_select:
 			if (locationEventHandlers != null)
 				for (CorpLocationEventHandler leh : locationEventHandlers)

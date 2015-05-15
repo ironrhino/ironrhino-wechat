@@ -74,9 +74,6 @@ public class CorpWechatAction extends BaseAction {
 			ServletActionContext.getResponse().getWriter().write(echostr);
 			return NONE;
 		} else if (StringUtils.isNotBlank(requestBody)) {
-			if (!wechat.verifySignature(timestamp, nonce, requestBody,
-					msg_signature))
-				return NONE;
 			requestBody = wxBizMsgCrypt.decryptMsg(msg_signature, timestamp,
 					nonce, requestBody);
 			String responseBody = wechat.reply(requestBody);

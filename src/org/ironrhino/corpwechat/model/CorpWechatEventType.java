@@ -5,7 +5,7 @@ import org.ironrhino.core.struts.I18N;
 
 public enum CorpWechatEventType implements Displayable {
 
-	subscribe, unsubscribe, SCAN, LOCATION, CLICK, VIEW, scancode_push, scancode_waitmsg, pic_sysphoto, pic_photo_or_album, pic_weixin, location_select, TEMPLATESENDJOBFINISH, MASSSENDJOBFINISH;
+	subscribe, unsubscribe, scan, location, click, view, scancode_push, scancode_waitmsg, pic_sysphoto, pic_photo_or_album, pic_weixin, location_select;
 
 	@Override
 	public String getName() {
