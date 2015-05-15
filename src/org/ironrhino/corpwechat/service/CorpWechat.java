@@ -105,17 +105,19 @@ public class CorpWechat {
 		this.corpSecret = corpSecret;
 	}
 
-	public boolean verifySignature(String timestamp, String nonce,
-			String signature) {
+	public boolean verifySignature(String timestamp, String nonce, String msg,
+			String msg_signature) {
 		if (StringUtils.isBlank(timestamp) || StringUtils.isBlank(nonce)
-				|| StringUtils.isBlank(signature))
+				|| StringUtils.isBlank(msg)
+				|| StringUtils.isBlank(msg_signature))
 			return false;
 		TreeSet<String> set = new TreeSet<String>();
 		set.add(getToken());
 		set.add(timestamp);
 		set.add(nonce);
+		set.add(msg);
 		return CodecUtils.shaHex(StringUtils.join(set.toArray())).equals(
-				signature);
+				msg_signature);
 	}
 
 	public String reply(String request) {
@@ -140,7 +142,7 @@ public class CorpWechat {
 	public void send(CorpWechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
-		String result = invoke("/message/custom/send", json);
+		String result = invoke("/message/send", json);
 		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
