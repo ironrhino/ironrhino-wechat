@@ -279,11 +279,10 @@ public class CorpWechat {
 		if (accessToken != null)
 			return accessToken;
 		Map<String, String> params = new HashMap<>();
-		params.put("grant_type", "client_credential");
 		params.put("corpid", getCorpId());
 		params.put("corpsecret", getCorpSecret());
-		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/token",
-				params);
+		String result = HttpClientUtils.getResponseText(apiBaseUrl
+				+ "/gettoken", params);
 		logger.info("fetchAccessToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
