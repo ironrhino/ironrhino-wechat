@@ -21,10 +21,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.CharsetUtils;
 import org.ironrhino.core.cache.CacheManager;
 import org.ironrhino.core.metadata.Setup;
 import org.ironrhino.core.metadata.Trigger;
@@ -227,7 +229,9 @@ public class Wechat {
 		HttpPost httppost = new HttpPost(sb.toString());
 		FileBody media = new FileBody(file);
 		HttpEntity reqEntity = MultipartEntityBuilder.create()
-				.addPart("media", media).build();
+				.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+				.addPart("media", media).setCharset(CharsetUtils.get("UTF-8"))
+				.build();
 		httppost.setEntity(reqEntity);
 		logger.info("uploading: " + file);
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
