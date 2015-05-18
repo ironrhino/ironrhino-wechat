@@ -26,7 +26,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.CharsetUtils;
 import org.ironrhino.core.cache.CacheManager;
 import org.ironrhino.core.metadata.Setup;
 import org.ironrhino.core.metadata.Trigger;
@@ -229,8 +228,7 @@ public class Wechat {
 		HttpPost httppost = new HttpPost(sb.toString());
 		FileBody media = new FileBody(file);
 		HttpEntity reqEntity = MultipartEntityBuilder.create()
-				.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-				.addPart("media", media).setCharset(CharsetUtils.get("UTF-8"))
+				.setMode(HttpMultipartMode.RFC6532).addPart("media", media)
 				.build();
 		httppost.setEntity(reqEntity);
 		logger.info("uploading: " + file);
