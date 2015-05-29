@@ -25,6 +25,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
+import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
@@ -48,6 +49,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class CorpWechat {
 
 	private static final String CACHE_NAMESPACE_ACCESSTOKEN = "ACCESSTOKEN";
+	private static final String CACHE_NAMESPACE_JSAPITICKET = "JSAPITOKEN";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -284,4 +286,36 @@ public class CorpWechat {
 		return accessToken;
 	}
 
+	public String getJsApiTicket() throws IOException {
+		String jsApiTicket = (String) cacheManager.get(getCorpId(),
+				CACHE_NAMESPACE_JSAPITICKET);
+		if (jsApiTicket != null)
+			return jsApiTicket;
+		Map<String, String> params = new HashMap<>();
+		params.put("access_token", fetchAccessToken());
+		String result = HttpClientUtils.getResponseText(apiBaseUrl
+				+ "/get_jsapi_ticket", params);
+		logger.info("getJsApiToken received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		if (node.has("errcode"))
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+		jsApiTicket = node.get("ticket").textValue();
+		int expiresIn = node.get("expires_in").asInt();
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.SECOND, expiresIn - 60);
+		cacheManager.put(getCorpId(), jsApiTicket, expiresIn - 60,
+				TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
+		return jsApiTicket;
+	}
+
+	public String getJsApiSignature(String jsapi_ticket, String noncestr,
+			String timestamp, String url) {
+		StringBuilder sb = new StringBuilder("jsapi_ticket=");
+		sb.append(jsapi_ticket).append("&noncestr=").append(noncestr)
+				.append("&timestamp=").append(timestamp).append("&url=")
+				.append(url);
+		return CodecUtils.shaHex(sb.toString());
+	}
+	
 }

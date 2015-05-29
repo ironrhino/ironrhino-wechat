@@ -56,6 +56,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class Wechat {
 
 	private static final String CACHE_NAMESPACE_ACCESSTOKEN = "ACCESSTOKEN";
+	private static final String CACHE_NAMESPACE_JSAPITICKET = "JSAPITOKEN";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -413,6 +414,38 @@ public class Wechat {
 		cacheManager.put(getAppId(), accessToken, expiresIn - 60,
 				TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
 		return accessToken;
+	}
+	
+	public String getJsApiTicket() throws IOException {
+		String jsApiTicket = (String) cacheManager.get(getAppId(),
+				CACHE_NAMESPACE_JSAPITICKET);
+		if (jsApiTicket != null)
+			return jsApiTicket;
+		Map<String, String> params = new HashMap<>();
+		params.put("access_token", fetchAccessToken());
+		String result = HttpClientUtils.getResponseText(apiBaseUrl
+				+ "/ticket/getticket", params);
+		logger.info("getJsApiToken received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		if (node.has("errcode"))
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
+					node.get("errcode").asText(), node.get("errmsg").asText() });
+		jsApiTicket = node.get("ticket").textValue();
+		int expiresIn = node.get("expires_in").asInt();
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.SECOND, expiresIn - 60);
+		cacheManager.put(getAppId(), jsApiTicket, expiresIn - 60,
+				TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
+		return jsApiTicket;
+	}
+
+	public String getJsApiSignature(String jsapi_ticket, String noncestr,
+			String timestamp, String url) {
+		StringBuilder sb = new StringBuilder("jsapi_ticket=");
+		sb.append(jsapi_ticket).append("&noncestr=").append(noncestr)
+				.append("&timestamp=").append(timestamp).append("&url=")
+				.append(url);
+		return CodecUtils.shaHex(sb.toString());
 	}
 
 }
