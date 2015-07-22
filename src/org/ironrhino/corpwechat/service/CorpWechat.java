@@ -26,6 +26,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
+import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
@@ -54,6 +55,12 @@ public class CorpWechat {
 	private static final String CACHE_NAMESPACE_JSAPITICKET = "JSAPITOKEN";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
+
+	@Value("${corpWechat.baseUrl:}")
+	protected String baseUrl;
+
+	@Value("${base:}")
+	private String base;
 
 	@Value("${corpWechat.apiBaseUrl:https://qyapi.weixin.qq.com/cgi-bin}")
 	protected String apiBaseUrl;
@@ -302,6 +309,21 @@ public class CorpWechat {
 		return CodecUtils.shaHex(sb.toString());
 	}
 
+	public String absolutizeUri(String uri) {
+		if (uri.indexOf("://") < 0) {
+			StringBuilder rurl = new StringBuilder();
+			if (StringUtils.isNotBlank(baseUrl))
+				rurl.append(baseUrl);
+			else if (StringUtils.isNotBlank(base))
+				rurl.append(base);
+			else
+				rurl.append("http://").append(AppInfo.getHostAddress());
+			rurl.append(uri);
+			uri = rurl.toString();
+		}
+		return uri;
+	}
+
 	public String buildAuthorizeUrl(String redirect_uri) throws IOException {
 		return buildAuthorizeUrl(redirect_uri, null);
 	}
@@ -310,7 +332,7 @@ public class CorpWechat {
 		StringBuilder sb = new StringBuilder();
 		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?response_type=code&scope=snsapi_base");
 		sb.append("&appid=").append(getCorpId());
-		sb.append("&redirect_uri=").append(URLEncoder.encode(redirect_uri, "utf-8"));
+		sb.append("&redirect_uri=").append(URLEncoder.encode(absolutizeUri(redirect_uri), "utf-8"));
 		if (StringUtils.isNotBlank(state))
 			sb.append("&state=").append(URLEncoder.encode(state, "utf-8"));
 		sb.append("#wechat_redirect");
