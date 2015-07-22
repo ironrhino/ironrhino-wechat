@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,6 +43,7 @@ import org.ironrhino.wechat.model.WechatNewsMessage;
 import org.ironrhino.wechat.model.WechatRequest;
 import org.ironrhino.wechat.model.WechatResponse;
 import org.ironrhino.wechat.model.WechatTemplateMessage;
+import org.ironrhino.wechat.model.WechatUserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,17 +121,14 @@ public class Wechat {
 		this.appSecret = appSecret;
 	}
 
-	public boolean verifySignature(String timestamp, String nonce,
-			String signature) {
-		if (StringUtils.isBlank(timestamp) || StringUtils.isBlank(nonce)
-				|| StringUtils.isBlank(signature))
+	public boolean verifySignature(String timestamp, String nonce, String signature) {
+		if (StringUtils.isBlank(timestamp) || StringUtils.isBlank(nonce) || StringUtils.isBlank(signature))
 			return false;
 		TreeSet<String> set = new TreeSet<String>();
 		set.add(getToken());
 		set.add(timestamp);
 		set.add(nonce);
-		return CodecUtils.shaHex(StringUtils.join(set.toArray())).equals(
-				signature);
+		return CodecUtils.shaHex(StringUtils.join(set.toArray())).equals(signature);
 	}
 
 	public String reply(String request) {
@@ -159,8 +158,8 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		else if (node.get("msg_id") != null)
 			return node.get("msg_id").asLong();
 		else
@@ -176,8 +175,8 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		else if (node.get("msg_id") != null)
 			return node.get("msg_id").asLong();
 		else
@@ -193,8 +192,8 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		else if (node.get("msg_id") != null)
 			return node.get("msg_id").asLong();
 		else
@@ -212,43 +211,36 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 	}
 
-	public WechatMedia upload(File file, WechatMediaType mediaType)
-			throws IOException {
+	public WechatMedia upload(File file, WechatMediaType mediaType) throws IOException {
 		if (!file.isFile())
 			throw new ErrorMessage(file + " is not a file");
 		if (file.length() > mediaType.getMaxFileLength())
-			throw new ErrorMessage(file + " is large than "
-					+ mediaType.getMaxFileLength());
-		StringBuilder sb = new StringBuilder(
-				"http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=");
+			throw new ErrorMessage(file + " is large than " + mediaType.getMaxFileLength());
+		StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=");
 		sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
 		HttpPost httppost = new HttpPost(sb.toString());
 		FileBody media = new FileBody(file);
-		HttpEntity reqEntity = MultipartEntityBuilder.create()
-				.setMode(HttpMultipartMode.RFC6532).addPart("media", media)
-				.build();
+		HttpEntity reqEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532)
+				.addPart("media", media).build();
 		httppost.setEntity(reqEntity);
 		logger.info("uploading: " + file);
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		String result = httpClient
-				.execute(httppost, new BasicResponseHandler());
+		String result = httpClient.execute(httppost, new BasicResponseHandler());
 		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		httpClient.close();
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		return new WechatMedia(result);
 	}
 
-	public WechatMedia uploadVideo(String media_id, String title,
-			String description) throws IOException {
-		String url = "http://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
-				+ fetchAccessToken();
+	public WechatMedia uploadVideo(String media_id, String title, String description) throws IOException {
+		String url = "http://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=" + fetchAccessToken();
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("media_id", media_id);
 		map.put("title", title);
@@ -261,8 +253,7 @@ public class Wechat {
 	}
 
 	public void download(String mediaId, OutputStream os) throws IOException {
-		StringBuilder sb = new StringBuilder(
-				"http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+		StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 		HttpGet httpGet = new HttpGet(sb.toString());
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
@@ -273,15 +264,13 @@ public class Wechat {
 		if (header != null && header.getValue() != null)
 			contentType = header.getValue();
 		if (contentType.startsWith("text/")) {
-			String result = StringUtils.join(
-					IOUtils.readLines(entity.getContent()), "\n");
+			String result = StringUtils.join(IOUtils.readLines(entity.getContent()), "\n");
 			logger.info("received: " + result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			response.close();
 			httpClient.close();
 			if (node.has("errcode"))
-				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-						node.get("errcode").asText(),
+				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
 						node.get("errmsg").asText() });
 		}
 		IOUtils.copy(entity.getContent(), os);
@@ -289,10 +278,8 @@ public class Wechat {
 		httpClient.close();
 	}
 
-	public void download(String mediaId, HttpServletResponse resp)
-			throws IOException {
-		StringBuilder sb = new StringBuilder(
-				"http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+	public void download(String mediaId, HttpServletResponse resp) throws IOException {
+		StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 		HttpGet httpGet = new HttpGet(sb.toString());
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
@@ -318,8 +305,8 @@ public class Wechat {
 		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		return new WechatMedia(result);
 	}
 
@@ -339,17 +326,14 @@ public class Wechat {
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			int errcode = node.get("errcode").asInt();
 			if (errcode != 0)
-				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-						node.get("errcode").asText(),
+				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
 						node.get("errmsg").asText() });
 		}
 	}
 
-	protected String invoke(String path, String request, int retryTimes)
-			throws IOException {
+	protected String invoke(String path, String request, int retryTimes) throws IOException {
 		StringBuilder sb = new StringBuilder(apiBaseUrl);
-		sb.append(path).append(path.indexOf('?') > -1 ? "&" : "?")
-				.append("access_token=").append(fetchAccessToken());
+		sb.append(path).append(path.indexOf('?') > -1 ? "&" : "?").append("access_token=").append(fetchAccessToken());
 		String url = sb.toString();
 		String result;
 		try {
@@ -369,8 +353,7 @@ public class Wechat {
 					if (errcode == -1) {
 						return invoke(path, request, --retryTimes);
 					} else if (errcode == 40001) {
-						cacheManager.delete(getAppId(),
-								CACHE_NAMESPACE_ACCESSTOKEN);
+						cacheManager.delete(getAppId(), CACHE_NAMESPACE_ACCESSTOKEN);
 						return invoke(path, request, --retryTimes);
 					}
 				} catch (Exception e) {
@@ -392,60 +375,82 @@ public class Wechat {
 	}
 
 	protected String fetchAccessToken() throws IOException {
-		String accessToken = (String) cacheManager.get(getAppId(),
-				CACHE_NAMESPACE_ACCESSTOKEN);
+		String accessToken = (String) cacheManager.get(getAppId(), CACHE_NAMESPACE_ACCESSTOKEN);
 		if (accessToken != null)
 			return accessToken;
 		Map<String, String> params = new HashMap<>();
 		params.put("grant_type", "client_credential");
 		params.put("appid", getAppId());
 		params.put("secret", getAppSecret());
-		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/token",
-				params);
+		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/token", params);
 		logger.info("fetchAccessToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		accessToken = node.get("access_token").textValue();
 		int expiresIn = node.get("expires_in").asInt();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.SECOND, expiresIn - 60);
-		cacheManager.put(getAppId(), accessToken, expiresIn - 60,
-				TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
+		cacheManager.put(getAppId(), accessToken, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
 		return accessToken;
 	}
-	
+
 	public String getJsApiTicket() throws IOException {
-		String jsApiTicket = (String) cacheManager.get(getAppId(),
-				CACHE_NAMESPACE_JSAPITICKET);
+		String jsApiTicket = (String) cacheManager.get(getAppId(), CACHE_NAMESPACE_JSAPITICKET);
 		if (jsApiTicket != null)
 			return jsApiTicket;
 		Map<String, String> params = new HashMap<>();
 		params.put("access_token", fetchAccessToken());
-		String result = HttpClientUtils.getResponseText(apiBaseUrl
-				+ "/ticket/getticket", params);
+		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/ticket/getticket", params);
 		logger.info("getJsApiToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		jsApiTicket = node.get("ticket").textValue();
 		int expiresIn = node.get("expires_in").asInt();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.SECOND, expiresIn - 60);
-		cacheManager.put(getAppId(), jsApiTicket, expiresIn - 60,
-				TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
+		cacheManager.put(getAppId(), jsApiTicket, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
 		return jsApiTicket;
 	}
 
-	public String getJsApiSignature(String jsapi_ticket, String noncestr,
-			String timestamp, String url) {
+	public String getJsApiSignature(String jsapi_ticket, String noncestr, String timestamp, String url) {
 		StringBuilder sb = new StringBuilder("jsapi_ticket=");
-		sb.append(jsapi_ticket).append("&noncestr=").append(noncestr)
-				.append("&timestamp=").append(timestamp).append("&url=")
-				.append(url);
+		sb.append(jsapi_ticket).append("&noncestr=").append(noncestr).append("&timestamp=").append(timestamp)
+				.append("&url=").append(url);
 		return CodecUtils.shaHex(sb.toString());
+	}
+
+	public String buildAuthorizeUrl(String redirect_uri) throws IOException {
+		return buildAuthorizeUrl(redirect_uri, null);
+	}
+
+	public String buildAuthorizeUrl(String redirect_uri, String state) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?response_type=code&scope=snsapi_base");
+		sb.append("&appid=").append(getAppId());
+		sb.append("&redirect_uri=").append(URLEncoder.encode(redirect_uri, "utf-8"));
+		if (StringUtils.isNotBlank(state))
+			sb.append("&state=").append(URLEncoder.encode(state, "utf-8"));
+		sb.append("#wechat_redirect");
+		return sb.toString();
+	}
+
+	public WechatUserInfo getUserInfoByCode(String code) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=authorization_code");
+		sb.append("&appid=").append(getAppId());
+		sb.append("&secret=").append(getAppSecret());
+		sb.append("&code=").append(code);
+		String result = HttpClientUtils.getResponseText(sb.toString());
+		logger.info("getUserInfoByCode received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		if (node.has("errcode"))
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
+		return JsonUtils.fromJson(result, WechatUserInfo.class);
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.ironrhino.corpwechat.model.CorpWechatMediaType;
 import org.ironrhino.corpwechat.model.CorpWechatMessage;
 import org.ironrhino.corpwechat.model.CorpWechatRequest;
 import org.ironrhino.corpwechat.model.CorpWechatResponse;
+import org.ironrhino.corpwechat.model.CorpWechatUserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,36 +135,32 @@ public class CorpWechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 	}
 
-	public CorpWechatMedia upload(File file, CorpWechatMediaType mediaType)
-			throws IOException {
+	public CorpWechatMedia upload(File file, CorpWechatMediaType mediaType) throws IOException {
 		if (!file.isFile())
 			throw new ErrorMessage(file + " is not a file");
 		if (file.length() > mediaType.getMaxFileLength())
-			throw new ErrorMessage(file + " is large than "
-					+ mediaType.getMaxFileLength());
+			throw new ErrorMessage(file + " is large than " + mediaType.getMaxFileLength());
 		StringBuilder sb = new StringBuilder(apiBaseUrl);
 		sb.append("/media/upload?access_token=");
 		sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
 		HttpPost httppost = new HttpPost(sb.toString());
 		FileBody media = new FileBody(file);
-		HttpEntity reqEntity = MultipartEntityBuilder.create()
-				.setMode(HttpMultipartMode.RFC6532).addPart("media", media)
-				.build();
+		HttpEntity reqEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532)
+				.addPart("media", media).build();
 		httppost.setEntity(reqEntity);
 		logger.info("uploading: " + file);
 		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		String result = httpClient
-				.execute(httppost, new BasicResponseHandler());
+		String result = httpClient.execute(httppost, new BasicResponseHandler());
 		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		httpClient.close();
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		return new CorpWechatMedia(result);
 	}
 
@@ -179,15 +177,13 @@ public class CorpWechat {
 		if (header != null && header.getValue() != null)
 			contentType = header.getValue();
 		if (contentType.startsWith("text/")) {
-			String result = StringUtils.join(
-					IOUtils.readLines(entity.getContent()), "\n");
+			String result = StringUtils.join(IOUtils.readLines(entity.getContent()), "\n");
 			logger.info("received: " + result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			response.close();
 			httpClient.close();
 			if (node.has("errcode"))
-				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-						node.get("errcode").asText(),
+				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
 						node.get("errmsg").asText() });
 		}
 		IOUtils.copy(entity.getContent(), os);
@@ -195,8 +191,7 @@ public class CorpWechat {
 		httpClient.close();
 	}
 
-	public void download(String mediaId, HttpServletResponse resp)
-			throws IOException {
+	public void download(String mediaId, HttpServletResponse resp) throws IOException {
 		StringBuilder sb = new StringBuilder(apiBaseUrl);
 		sb.append("/media/get?access_token=");
 		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
@@ -216,11 +211,9 @@ public class CorpWechat {
 		httpClient.close();
 	}
 
-	protected String invoke(String path, String request, int retryTimes)
-			throws IOException {
+	protected String invoke(String path, String request, int retryTimes) throws IOException {
 		StringBuilder sb = new StringBuilder(apiBaseUrl);
-		sb.append(path).append(path.indexOf('?') > -1 ? "&" : "?")
-				.append("access_token=").append(fetchAccessToken());
+		sb.append(path).append(path.indexOf('?') > -1 ? "&" : "?").append("access_token=").append(fetchAccessToken());
 		String url = sb.toString();
 		String result;
 		try {
@@ -240,8 +233,7 @@ public class CorpWechat {
 					if (errcode == -1) {
 						return invoke(path, request, --retryTimes);
 					} else if (errcode == 40001) {
-						cacheManager.delete(getCorpId(),
-								CACHE_NAMESPACE_ACCESSTOKEN);
+						cacheManager.delete(getCorpId(), CACHE_NAMESPACE_ACCESSTOKEN);
 						return invoke(path, request, --retryTimes);
 					}
 				} catch (Exception e) {
@@ -263,59 +255,87 @@ public class CorpWechat {
 	}
 
 	protected String fetchAccessToken() throws IOException {
-		String accessToken = (String) cacheManager.get(getCorpId(),
-				CACHE_NAMESPACE_ACCESSTOKEN);
+		String accessToken = (String) cacheManager.get(getCorpId(), CACHE_NAMESPACE_ACCESSTOKEN);
 		if (accessToken != null)
 			return accessToken;
 		Map<String, String> params = new HashMap<>();
 		params.put("corpid", getCorpId());
 		params.put("corpsecret", getCorpSecret());
-		String result = HttpClientUtils.getResponseText(apiBaseUrl
-				+ "/gettoken", params);
+		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/gettoken", params);
 		logger.info("fetchAccessToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		accessToken = node.get("access_token").textValue();
 		int expiresIn = node.get("expires_in").asInt();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.SECOND, expiresIn - 60);
-		cacheManager.put(getCorpId(), accessToken, expiresIn - 60,
-				TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
+		cacheManager.put(getCorpId(), accessToken, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
 		return accessToken;
 	}
 
 	public String getJsApiTicket() throws IOException {
-		String jsApiTicket = (String) cacheManager.get(getCorpId(),
-				CACHE_NAMESPACE_JSAPITICKET);
+		String jsApiTicket = (String) cacheManager.get(getCorpId(), CACHE_NAMESPACE_JSAPITICKET);
 		if (jsApiTicket != null)
 			return jsApiTicket;
 		Map<String, String> params = new HashMap<>();
 		params.put("access_token", fetchAccessToken());
-		String result = HttpClientUtils.getResponseText(apiBaseUrl
-				+ "/get_jsapi_ticket", params);
+		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/get_jsapi_ticket", params);
 		logger.info("getJsApiToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
 		jsApiTicket = node.get("ticket").textValue();
 		int expiresIn = node.get("expires_in").asInt();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.SECOND, expiresIn - 60);
-		cacheManager.put(getCorpId(), jsApiTicket, expiresIn - 60,
-				TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
+		cacheManager.put(getCorpId(), jsApiTicket, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
 		return jsApiTicket;
 	}
 
-	public String getJsApiSignature(String jsapi_ticket, String noncestr,
-			String timestamp, String url) {
+	public String getJsApiSignature(String jsapi_ticket, String noncestr, String timestamp, String url) {
 		StringBuilder sb = new StringBuilder("jsapi_ticket=");
-		sb.append(jsapi_ticket).append("&noncestr=").append(noncestr)
-				.append("&timestamp=").append(timestamp).append("&url=")
-				.append(url);
+		sb.append(jsapi_ticket).append("&noncestr=").append(noncestr).append("&timestamp=").append(timestamp)
+				.append("&url=").append(url);
 		return CodecUtils.shaHex(sb.toString());
 	}
-	
+
+	public String buildAuthorizeUrl(String redirect_uri) throws IOException {
+		return buildAuthorizeUrl(redirect_uri, null);
+	}
+
+	public String buildAuthorizeUrl(String redirect_uri, String state) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?response_type=code&scope=snsapi_base");
+		sb.append("&appid=").append(getCorpId());
+		sb.append("&redirect_uri=").append(URLEncoder.encode(redirect_uri, "utf-8"));
+		if (StringUtils.isNotBlank(state))
+			sb.append("&state=").append(URLEncoder.encode(state, "utf-8"));
+		sb.append("#wechat_redirect");
+		return sb.toString();
+	}
+
+	public CorpWechatUserInfo getUserInfoByCode(String code) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo");
+		sb.append("?access_token=").append(fetchAccessToken());
+		sb.append("&code=").append(code);
+		String result = HttpClientUtils.getResponseText(sb.toString());
+		logger.info("getUserInfoByCode received: {}", result);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		if (node.has("errcode"))
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
+					node.get("errmsg").asText() });
+		CorpWechatUserInfo info = new CorpWechatUserInfo();
+		if (node.has("UserId"))
+			info.setUserid(node.get("UserId").asText());
+		if (node.has("OpenId"))
+			info.setOpenid(node.get("OpenId").asText());
+		if (node.has("DeviceId"))
+			info.setDeviceid(node.get("DeviceId").asText());
+		return info;
+	}
+
 }
