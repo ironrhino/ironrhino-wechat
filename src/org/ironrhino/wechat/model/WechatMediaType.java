@@ -1,7 +1,6 @@
 package org.ironrhino.wechat.model;
 
 import org.ironrhino.core.model.Displayable;
-import org.ironrhino.core.struts.I18N;
 
 public enum WechatMediaType implements Displayable {
 
@@ -18,18 +17,12 @@ public enum WechatMediaType implements Displayable {
 		return maxFileLength;
 	}
 
-	@Override
 	public String getName() {
-		return this.name();
+		return name();
 	}
 
-	@Override
 	public String getDisplayName() {
-		try {
-			return I18N.getText(getClass(), name());
-		} catch (Exception e) {
-			return name();
-		}
+		return Displayable.super.getDisplayName();
 	}
 
 	@Override

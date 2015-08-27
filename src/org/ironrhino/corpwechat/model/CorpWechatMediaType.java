@@ -1,12 +1,10 @@
 package org.ironrhino.corpwechat.model;
 
 import org.ironrhino.core.model.Displayable;
-import org.ironrhino.core.struts.I18N;
 
 public enum CorpWechatMediaType implements Displayable {
 
-	image(1024 * 1024), voice(2 * 1024 * 1024), video(10 * 1024 * 1024), file(
-			10 * 1024 * 1024);
+	image(1024 * 1024), voice(2 * 1024 * 1024), video(10 * 1024 * 1024), file(10 * 1024 * 1024);
 
 	private int maxFileLength;
 
@@ -18,18 +16,12 @@ public enum CorpWechatMediaType implements Displayable {
 		return maxFileLength;
 	}
 
-	@Override
 	public String getName() {
-		return this.name();
+		return name();
 	}
 
-	@Override
 	public String getDisplayName() {
-		try {
-			return I18N.getText(getClass(), name());
-		} catch (Exception e) {
-			return name();
-		}
+		return Displayable.super.getDisplayName();
 	}
 
 	@Override

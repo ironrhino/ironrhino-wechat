@@ -3,7 +3,6 @@ package org.ironrhino.corpwechat.model;
 import java.io.UnsupportedEncodingException;
 
 import org.ironrhino.core.model.Displayable;
-import org.ironrhino.core.struts.I18N;
 
 public enum CorpWechatResponseType implements Displayable {
 
@@ -145,18 +144,12 @@ public enum CorpWechatResponseType implements Displayable {
 		}
 	};
 
-	@Override
 	public String getName() {
-		return this.name();
+		return name();
 	}
 
-	@Override
 	public String getDisplayName() {
-		try {
-			return I18N.getText(getClass(), name());
-		} catch (Exception e) {
-			return name();
-		}
+		return Displayable.super.getDisplayName();
 	}
 
 	@Override

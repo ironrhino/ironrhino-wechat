@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ironrhino.core.model.Displayable;
-import org.ironrhino.core.struts.I18N;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -99,18 +98,12 @@ public enum CorpWechatMessageType implements Displayable {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	@Override
 	public String getName() {
-		return this.name();
+		return name();
 	}
 
-	@Override
 	public String getDisplayName() {
-		try {
-			return I18N.getText(getClass(), name());
-		} catch (Exception e) {
-			return name();
-		}
+		return Displayable.super.getDisplayName();
 	}
 
 	@Override
