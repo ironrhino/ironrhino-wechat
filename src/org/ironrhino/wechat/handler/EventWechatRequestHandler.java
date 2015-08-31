@@ -19,6 +19,9 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 	private List<ScanEventHandler> scanEventHandlers;
 
 	@Autowired(required = false)
+	private ScanStringEventHandler scanStringEventHandler;
+
+	@Autowired(required = false)
 	private List<ClickEventHandler> clickEventHandlers;
 
 	@Autowired(required = false)
@@ -45,8 +48,12 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 			if (StringUtils.isNotBlank(eventKey)) {
 				if (eventKey.startsWith("qrscene_"))
 					eventKey = eventKey.substring(eventKey.indexOf('_') + 1);
-				if (StringUtils.isNumeric(eventKey)) {
+				if (StringUtils.isNumeric(eventKey)
+						&& eventKey.length() <= String.valueOf(Integer.MAX_VALUE).length()) {
 					key = Integer.valueOf(eventKey);
+				} else if (scanStringEventHandler != null) {
+					WechatResponse wr = scanStringEventHandler.handle(eventKey, request);
+					return wr != null ? wr : WechatResponse.EMPTY;
 				}
 			}
 			if (scanEventHandlers != null)
@@ -70,8 +77,7 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 			if (locationEventHandlers != null)
 				for (LocationEventHandler leh : locationEventHandlers)
 					if (leh.takeover(eventKey)) {
-						WechatResponse wr = leh.handle(request.getLatitude(),
-								request.getLongitude(), request);
+						WechatResponse wr = leh.handle(request.getLatitude(), request.getLongitude(), request);
 						return wr != null ? wr : WechatResponse.EMPTY;
 					}
 
@@ -81,8 +87,7 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 			if (scancodeEventHandlers != null)
 				for (ScancodeEventHandler seh : scancodeEventHandlers)
 					if (seh.takeover(eventKey)) {
-						WechatResponse wr = seh.handle(request.getScanResult(),
-								request);
+						WechatResponse wr = seh.handle(request.getScanResult(), request);
 						return wr != null ? wr : WechatResponse.EMPTY;
 					}
 			break;
