@@ -156,7 +156,7 @@ public class Wechat {
 		return response;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
 	public Long send(WechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -165,15 +165,15 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		else if (node.get("msg_id") != null)
 			return node.get("msg_id").asLong();
 		else
 			return null;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
 	public Long sendTemplate(WechatTemplateMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -182,15 +182,15 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		else if (node.get("msg_id") != null)
 			return node.get("msg_id").asLong();
 		else
 			return null;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
 	public Long sendAll(WechatAllMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -199,15 +199,15 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		else if (node.get("msg_id") != null)
 			return node.get("msg_id").asLong();
 		else
 			return null;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
 	public void cancelSendAll(String msg_id) throws IOException {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("msg_id", msg_id);
@@ -218,8 +218,8 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
 	public WechatMedia upload(File file, WechatMediaType mediaType) throws IOException {
@@ -241,8 +241,8 @@ public class Wechat {
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		httpClient.close();
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		return new WechatMedia(result);
 	}
 
@@ -277,8 +277,8 @@ public class Wechat {
 			response.close();
 			httpClient.close();
 			if (node.has("errcode"))
-				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-						node.get("errmsg").asText() });
+				throw new ErrorMessage("errcode:{0},errmsg:{1}",
+						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		}
 		IOUtils.copy(entity.getContent(), os);
 		response.close();
@@ -304,7 +304,7 @@ public class Wechat {
 		httpClient.close();
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
 	public WechatMedia uploadNews(WechatNewsMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -312,8 +312,8 @@ public class Wechat {
 		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		return new WechatMedia(result);
 	}
 
@@ -333,8 +333,8 @@ public class Wechat {
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			int errcode = node.get("errcode").asInt();
 			if (errcode != 0)
-				throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-						node.get("errmsg").asText() });
+				throw new ErrorMessage("errcode:{0},errmsg:{1}",
+						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		}
 	}
 
@@ -393,8 +393,8 @@ public class Wechat {
 		logger.info("fetchAccessToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		accessToken = node.get("access_token").textValue();
 		int expiresIn = node.get("expires_in").asInt();
 		Calendar cal = Calendar.getInstance();
@@ -409,12 +409,13 @@ public class Wechat {
 			return jsApiTicket;
 		Map<String, String> params = new HashMap<>();
 		params.put("access_token", fetchAccessToken());
+		params.put("type", "jsapi");
 		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/ticket/getticket", params);
 		logger.info("getJsApiToken received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+		if (node.has("errcode") && node.get("errcode").asInt() > 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		jsApiTicket = node.get("ticket").textValue();
 		int expiresIn = node.get("expires_in").asInt();
 		Calendar cal = Calendar.getInstance();
@@ -470,8 +471,8 @@ public class Wechat {
 		logger.info("getUserInfoByCode received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { node.get("errcode").asText(),
-					node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		return JsonUtils.fromJson(result, WechatUserInfo.class);
 	}
 
