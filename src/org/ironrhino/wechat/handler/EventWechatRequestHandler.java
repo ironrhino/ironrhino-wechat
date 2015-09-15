@@ -7,11 +7,10 @@ import org.ironrhino.wechat.model.WechatRequest;
 import org.ironrhino.wechat.model.WechatRequestType;
 import org.ironrhino.wechat.model.WechatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(-1)
 @Component
 public class EventWechatRequestHandler implements WechatRequestHandler {
 

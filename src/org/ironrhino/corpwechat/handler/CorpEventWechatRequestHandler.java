@@ -7,11 +7,10 @@ import org.ironrhino.corpwechat.model.CorpWechatRequest;
 import org.ironrhino.corpwechat.model.CorpWechatRequestType;
 import org.ironrhino.corpwechat.model.CorpWechatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(-1)
 @Component
 public class CorpEventWechatRequestHandler implements CorpWechatRequestHandler {
 
@@ -70,8 +69,7 @@ public class CorpEventWechatRequestHandler implements CorpWechatRequestHandler {
 			if (locationEventHandlers != null)
 				for (CorpLocationEventHandler leh : locationEventHandlers)
 					if (leh.takeover(eventKey)) {
-						CorpWechatResponse wr = leh.handle(request.getLatitude(),
-								request.getLongitude(), request);
+						CorpWechatResponse wr = leh.handle(request.getLatitude(), request.getLongitude(), request);
 						return wr != null ? wr : CorpWechatResponse.EMPTY;
 					}
 
@@ -81,8 +79,7 @@ public class CorpEventWechatRequestHandler implements CorpWechatRequestHandler {
 			if (scancodeEventHandlers != null)
 				for (CorpScancodeEventHandler seh : scancodeEventHandlers)
 					if (seh.takeover(eventKey)) {
-						CorpWechatResponse wr = seh.handle(request.getScanResult(),
-								request);
+						CorpWechatResponse wr = seh.handle(request.getScanResult(), request);
 						return wr != null ? wr : CorpWechatResponse.EMPTY;
 					}
 			break;
