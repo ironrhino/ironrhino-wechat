@@ -16,7 +16,7 @@
 	<property name="server.shutdown.port" value="8005" />
 	<property name="webapp.deploy.dir" value="${server.home}/webapps/ROOT" />
 	<property file="build.properties" />
-	<property name="version" value="2.0" />
+	<property name="version" value="1.0" />
 	<property name="jar.name" value="app-${version}.jar" />
 	
 	<import file="build.include.xml" optional="true"/>
@@ -57,13 +57,26 @@
 			}
 			importPackage(java.io);
 			if(!new File(basedir+'/../ironrhino').isDirectory()){
-				print("directory ../ironrhino doesn't exists\n");
+				print("	directory ../ironrhino doesn't exists");
 			}else{
-				var classpathfile = new File(basedir+'/.classpath');
-				var is = new FileInputStream(classpathfile);
+				var is = new FileInputStream(new File(basedir+'/../ironrhino/.dependence'));
 				var br = new BufferedReader(new InputStreamReader(is,'utf-8'));
-				var lines = [];
+				var increment = [];
+				var decrement = [];
 				var line;
+				while(line=br.readLine()){
+					if(line.indexOf('+')==0){
+						increment.push(line.substring(1));
+					}else if(line.indexOf('-')==0){
+						decrement.push(line.substring(1));
+					}
+				}
+				br.close();
+				is.close();	
+				var classpathfile = new File(basedir+'/.classpath');
+				is = new FileInputStream(classpathfile);
+				br = new BufferedReader(new InputStreamReader(is,'utf-8'));
+				var lines = [];
 				while(line=br.readLine()){
 					if(line.indexOf('kind="lib"') < 0)
 						continue;
@@ -109,7 +122,7 @@
 								}
 								if(!upgrade)
 										continue;
-	        					print('upgrade jar from '+filename+' to '+f.getName()+'\n');
+	        					print('	upgrade jar from '+filename+' to '+f.getName());
 	        					file = f;
 	        					if(tofile.exists()){
 		        					var del = project.createTask("delete");
@@ -123,8 +136,46 @@
 	        				}
 	        			}
 	        		}
-	        		if(!file.exists())
+	        		if(!file.exists()){
 	        			file = new File(basedir+'/extralib',filename);
+						var parent = file.getParentFile();
+						if(!file.exists() && parent.exists()){
+					        var files = parent.listFiles();
+							for(var i=0;i<files.length;i++){
+								var f = files[i];
+								var filename2 = f.getName();
+								var jarname2 = filename2.substring(0,filename2.lastIndexOf(filename2.lastIndexOf('-')>0?'-':'.'));
+								var version2 = filename2.substring(jarname2.length()+1);
+								if(f.isFile() && filename != filename2 && jarname == jarname2 && version2.length()>0){
+									if(version.length()>4)
+										version = version.substring(0,version.length()-4);
+									if(version2.length()>4)
+										version2 = version2.substring(0,version2.length()-4);
+									var verarr1 = version.split("\\.");
+									var verarr2 = version2.split("\\.");
+			        				var upgrade = false;
+									for(var j=0;j<verarr2.length;j++){
+										if(j==verarr1.length || verarr2[j]>verarr1[j] || verarr2[j].length() > verarr1[j].length()){
+											upgrade = true;
+											break;
+										}
+									}
+									if(!upgrade)
+											continue;
+									print('	upgrade jar from '+filename+' to '+f.getName());
+		        					file = f;
+		        					if(tofile.exists()){
+			        					var del = project.createTask("delete");
+			        					del.setFile(tofile);
+			        					del.perform();
+		        					}
+		        					tofile = new File(basedir,path.replaceAll(filename,f.getName()));
+		        					replacement.push(filename);
+		        					replacement.push(f.getName());
+								}
+							}
+						}
+					}
 	        		copy.setFile(file);
 	        		copy.setTofile(tofile);
 					copy.setPreserveLastModified(true);
@@ -139,7 +190,7 @@
 					replace.perform();
 				}
 				// clean unused jar
-				is = new FileInputStream(new File(project.getProperty('basedir')+'/.classpath'));
+				is = new FileInputStream(new File(basedir+'/.classpath'));
 				br = new BufferedReader(new InputStreamReader(is,'utf-8'));
 				var jarnames = [];
 				while(line=br.readLine()){
@@ -170,6 +221,47 @@
 						del.setFile(f);
 						del.perform();
 				}
+				}
+				for(var i=0;i<increment.length;i++){
+					var files = new File(basedir+'/../ironrhino/webapp/WEB-INF/lib').listFiles();
+					for(var j=0;j<files.length;j++){
+						var f = files[j];
+						var filename = f.getName();
+						var token = '	<classpathentry kind="output"';
+						var copy = project.createTask('copy');
+						var replace = project.createTask('replace');
+						if(filename.match(new RegExp(increment[i]+'-[\\d.]+\\.jar')) && !new File(basedir+'/webapp/WEB-INF/lib/'+filename).exists()){
+							print('	add jar '+filename);
+							copy.setFile(f);
+				        	copy.setTofile(new File(basedir+'/webapp/WEB-INF/lib/'+filename));
+							copy.setPreserveLastModified(true);
+				        	copy.perform();
+							var line = '	<classpathentry kind="lib" path="webapp/WEB-INF/lib/'+filename+'"/>\n';
+							replace.setFile(new File(basedir+'/.classpath'));
+							replace.setToken(token);
+							replace.setValue(line+token);
+							replace.perform();
+						}
+					}
+				}
+				for(var i=0;i<decrement.length;i++){
+					var files = new File(basedir+'/webapp/WEB-INF/lib').listFiles();
+					for(var j=0;j<files.length;j++){
+						var f = files[j];
+						var filename = f.getName();
+						var del = project.createTask('delete');
+						var replace = project.createTask('replace');
+						if(filename.match(new RegExp(decrement[i]+'-[\\d.]+\\.jar'))){
+							print('	remove jar '+filename);
+							del.setFile(f);
+							del.perform();
+							var line = '	<classpathentry kind="lib" path="webapp/WEB-INF/lib/'+filename+'"/>\n';
+							replace.setFile(new File(basedir+'/.classpath'));
+							replace.setToken(line);
+							replace.setValue('');
+							replace.perform();
+						}
+					}
 				}
 			}
 			]]>
@@ -639,6 +731,7 @@
 	</target>
 
 	<target name="clean">
+		<delete dir="${target.dir}" />
 		<delete dir="${classes.dir}" />
 		<delete dir="${test.classes.dir}" />
 	</target>
