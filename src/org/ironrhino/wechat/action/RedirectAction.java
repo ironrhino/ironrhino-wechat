@@ -12,6 +12,7 @@ import org.ironrhino.wechat.service.Wechat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,6 +29,9 @@ public class RedirectAction extends BaseAction {
 
 	@Autowired
 	protected UserDetailsService userDetailsService;
+
+	@Value("${wechat.oauth.fallbackUrl:}")
+	private String fallbackUrl;
 
 	private String code;
 
@@ -54,6 +58,9 @@ public class RedirectAction extends BaseAction {
 				logger.error(e.getMessage(), e);
 				if (AppInfo.getStage() == Stage.DEVELOPMENT) {
 					openid = code;
+				} else {
+					addActionError("获取openid失败: " + e.getLocalizedMessage());
+					return ERROR;
 				}
 			}
 			try {
@@ -61,6 +68,10 @@ public class RedirectAction extends BaseAction {
 				AuthzUtils.autoLogin(userDetails);
 				targetUrl = state;
 			} catch (UsernameNotFoundException e) {
+				if (StringUtils.isNotBlank(fallbackUrl)) {
+					targetUrl = fallbackUrl;
+					return REDIRECT;
+				}
 				addActionError("请先关注公众号");
 				return ERROR;
 			}
