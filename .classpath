@@ -18,7 +18,7 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-lang3-3.4.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-net-3.3.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/commons-net-3.4.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/disruptor-3.3.2.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ehcache-core-2.6.11.jar"/>
@@ -27,19 +27,19 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpcore-4.4.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-assets-2.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-core-2.0.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-annotations-2.6.3.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-core-2.6.3.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-databind-2.6.3.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-annotations-2.6.4.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-core-2.6.4.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-databind-2.6.4.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/javassist-3.20.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jboss-logging-3.3.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jericho-html-3.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jpa-api-2.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jsoup-1.8.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jta-1.1.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-api-2.4.1.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-core-2.4.1.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-jcl-2.4.1.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-slf4j-impl-2.4.1.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-api-2.5.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-core-2.5.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-jcl-2.5.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/log4j-slf4j-impl-2.5.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/mvel2-2.2.7.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ognl-3.0.13.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/pinyin4j-2.5.0.jar"/>
@@ -55,10 +55,10 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-tx-4.2.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-web-4.2.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-webmvc-4.2.3.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-core-2.3.24.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-sitemesh-plugin-2.3.24.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-spring-plugin-2.3.24.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/xwork-core-2.3.24.1.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-core-2.4.16.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-sitemesh-plugin-2.4.16.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-spring-plugin-2.4.16.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/xwork-core-2.4.16.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpmime-4.5.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-security-core-4.0.3.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/spring-retry-1.1.2.jar"/>

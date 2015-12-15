@@ -47,8 +47,7 @@
 	</target>
 
 	<target name="sync">
-		<copy tofile="build.xml" file="${basedir}/../ironrhino/build.project.xml"
-			failonerror="false" />
+		<copy tofile="build.xml" file="${basedir}/../ironrhino/build.project.xml" failonerror="false" />
 		<script language="javascript">
 			<![CDATA[
 			try{
@@ -74,16 +73,33 @@
 				br.close();
 				is.close();	
 				var classpathfile = new File(basedir+'/.classpath');
+				for(var i=0;i<decrement.length;i++){
+					var replaceregexp = project.createTask('replaceregexp');
+					var match = '^.*'+decrement[i]+'-[\\d.]+\\.jar.*$';
+					replaceregexp.setFile(classpathfile);
+					replaceregexp.setMatch(match);
+					replaceregexp.setReplace('');
+					replaceregexp.setByLine(true);
+					replaceregexp.perform();
+				}
 				is = new FileInputStream(classpathfile);
 				br = new BufferedReader(new InputStreamReader(is,'utf-8'));
+				var hasBlankLines = false;
 				var lines = [];
-				while(line=br.readLine()){
+				while((line=br.readLine()) != null){
+					if(!hasBlankLines)
+						hasBlankLines = !line;
 					if(line.indexOf('kind="lib"') < 0)
 						continue;
 					lines.push(line);	
 				}
 				br.close();
 				is.close();
+				if(hasBlankLines){
+					var antcall = project.createTask('antcall');
+					antcall.setTarget('refineclasspathfile');
+					antcall.perform();
+				}
 				var replacement = [];
 				for(var n=0;n<lines.length;n++){
 					var line = lines[n];
@@ -122,7 +138,7 @@
 								}
 								if(!upgrade)
 										continue;
-	        					print('	upgrade jar from '+filename+' to '+f.getName());
+	        					print('	[sync] Upgrading '+filename+' to '+f.getName());
 	        					file = f;
 	        					if(tofile.exists()){
 		        					var del = project.createTask("delete");
@@ -162,7 +178,7 @@
 									}
 									if(!upgrade)
 											continue;
-									print('	upgrade jar from '+filename+' to '+f.getName());
+									print('	[sync] Upgrading '+filename+' to '+f.getName());
 		        					file = f;
 		        					if(tofile.exists()){
 			        					var del = project.createTask("delete");
@@ -179,7 +195,8 @@
 	        		copy.setFile(file);
 	        		copy.setTofile(tofile);
 					copy.setPreserveLastModified(true);
-	        		if(file.exists())
+					copy.setOverwrite(true);
+	        		if(file.exists() && (!tofile.exists() || file.length() != tofile.length()))
 	        			copy.perform();
 				}
 				for(var i=0;i<replacement.length;i+=2){
@@ -193,7 +210,7 @@
 				is = new FileInputStream(new File(basedir+'/.classpath'));
 				br = new BufferedReader(new InputStreamReader(is,'utf-8'));
 				var jarnames = [];
-				while(line=br.readLine()){
+				while((line=br.readLine()) != null){
 					if(line.indexOf('kind="lib"') < 0)
 						continue;
 					var index = line.indexOf('path="')+6;
@@ -222,7 +239,12 @@
 						del.perform();
 				}
 				}
-				for(var i=0;i<increment.length;i++){
+				label: for(var i=0;i<increment.length;i++){
+					for(var n=0;n<lines.length;n++){
+						if(lines[n].match(new RegExp(increment[i]+'-[\\d.]+\\.jar'))){
+							continue label;
+						}
+					}
 					var files = new File(basedir+'/../ironrhino/webapp/WEB-INF/lib').listFiles();
 					for(var j=0;j<files.length;j++){
 						var f = files[j];
@@ -231,34 +253,15 @@
 						var copy = project.createTask('copy');
 						var replace = project.createTask('replace');
 						if(filename.match(new RegExp(increment[i]+'-[\\d.]+\\.jar')) && !new File(basedir+'/webapp/WEB-INF/lib/'+filename).exists()){
-							print('	add jar '+filename);
+							print('	[sync] Adding '+filename);
 							copy.setFile(f);
 				        	copy.setTofile(new File(basedir+'/webapp/WEB-INF/lib/'+filename));
 							copy.setPreserveLastModified(true);
 				        	copy.perform();
 							var line = '	<classpathentry kind="lib" path="webapp/WEB-INF/lib/'+filename+'"/>\n';
-							replace.setFile(new File(basedir+'/.classpath'));
+							replace.setFile(classpathfile);
 							replace.setToken(token);
 							replace.setValue(line+token);
-							replace.perform();
-						}
-					}
-				}
-				for(var i=0;i<decrement.length;i++){
-					var files = new File(basedir+'/webapp/WEB-INF/lib').listFiles();
-					for(var j=0;j<files.length;j++){
-						var f = files[j];
-						var filename = f.getName();
-						var del = project.createTask('delete');
-						var replace = project.createTask('replace');
-						if(filename.match(new RegExp(decrement[i]+'-[\\d.]+\\.jar'))){
-							print('	remove jar '+filename);
-							del.setFile(f);
-							del.perform();
-							var line = '	<classpathentry kind="lib" path="webapp/WEB-INF/lib/'+filename+'"/>\n';
-							replace.setFile(new File(basedir+'/.classpath'));
-							replace.setToken(line);
-							replace.setValue('');
 							replace.perform();
 						}
 					}
@@ -266,6 +269,15 @@
 			}
 			]]>
 		</script>
+	</target>
+	
+	<target name="refineclasspathfile">
+		<copy file=".classpath" toFile=".temp">
+		  <filterchain>
+		    <ignoreblank/>
+		  </filterchain>
+		</copy>
+		<move file=".temp" toFile=".classpath"/>
 	</target>
 
 	<target name="compile" depends="sync">
@@ -279,6 +291,8 @@
 		</script>
 		<javac includeantruntime="false" includejavaruntime="true" debug="true" debuglevel="lines,vars,source"
 			srcdir="${src.dir}" destdir="${classes.dir}" encoding="UTF-8">
+			<compilerarg line="-Xlint:unchecked" />
+			<compilerarg value="-parameters"/>
 			<classpath refid="lib.classpath" />
 		</javac>
 		<copy todir="${classes.dir}" preservelastmodified="true">
@@ -304,6 +318,8 @@
 		</script>
 		<javac includeantruntime="false" includejavaruntime="true" debug="true" debuglevel="lines,vars,source"
 			srcdir="${test.src.dir}" destdir="${test.classes.dir}" encoding="utf-8">
+			<compilerarg line="-Xlint:unchecked" />
+			<compilerarg value="-parameters"/>
 			<classpath>
 				<path refid="lib.classpath" />
 				<pathelement location="${classes.dir}" />
@@ -429,6 +445,8 @@
 					if(file.isDirectory())
 						continue;
 					var name = file.getName();
+					if(!name.endsWith('.js')&&!name.endsWith('.css'))
+						continue;
 					if(name.indexOf('-min.') > 0)
 						continue;
 					var revision = null;
@@ -491,9 +509,10 @@
 		      			fs.setDir(decdir);
 		      			fs.setIncludes('**/*.ftl');
 		      			replaceregexp.addFileset(fs);
-		      			var namearr = name.split('\\.');
-		      			var match = '/'+dir.getName()+'/'+namearr[0]+'(.*)\\.'+namearr[1];
-		      			var replace = '/'+dir.getName()+'/'+namearr[0]+'\\1\\.'+namearr[1]+'?'+revision;
+						var prefix = name.substring(0,name.lastIndexOf('.'));
+						var suffix = name.substring(name.lastIndexOf('.')+1);
+		      			var match = '/'+dir.getName()+'/'+prefix+'(.*)\\.'+suffix;
+		      			var replace = '/'+dir.getName()+'/'+prefix+'\\1\\.'+suffix+'?'+revision;
 		        		replaceregexp.setMatch(match);
 		        		replaceregexp.setReplace(replace);
 		        		replaceregexp.perform();
