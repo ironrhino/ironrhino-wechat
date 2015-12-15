@@ -127,6 +127,10 @@ public class Wechat {
 	public void setAppSecret(String appSecret) {
 		this.appSecret = appSecret;
 	}
+	
+	public String getApiBaseUrl() {
+		return apiBaseUrl;
+	}
 
 	public boolean verifySignature(String timestamp, String nonce, String signature) {
 		if (StringUtils.isBlank(timestamp) || StringUtils.isBlank(nonce) || StringUtils.isBlank(signature))
@@ -381,7 +385,7 @@ public class Wechat {
 		return invoke(path, request, 3);
 	}
 
-	protected String fetchAccessToken() throws IOException {
+	public String fetchAccessToken() throws IOException {
 		String accessToken = (String) cacheManager.get(getAppId(), CACHE_NAMESPACE_ACCESSTOKEN);
 		if (accessToken != null)
 			return accessToken;

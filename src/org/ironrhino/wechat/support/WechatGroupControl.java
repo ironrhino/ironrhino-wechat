@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
-@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
+@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
 public class WechatGroupControl {
 
 	@Autowired
@@ -32,8 +32,8 @@ public class WechatGroupControl {
 		String result = wechat.invoke("/groups/create", request);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		int id = node.get("group").get("id").asInt();
 		WechatGroup group = new WechatGroup();
 		group.setId(id);
@@ -51,17 +51,17 @@ public class WechatGroupControl {
 		String request = sb.toString();
 		String result = wechat.invoke("/groups/update", request);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+		if (node.has("errcode") && node.get("errcode").asInt() > 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
 	public List<WechatGroup> get() throws IOException {
 		String result = wechat.invoke("/groups/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		JsonNode groups = node.get("groups");
 		int size = groups.size();
 		List<WechatGroup> list = new ArrayList<>(size);
@@ -86,8 +86,8 @@ public class WechatGroupControl {
 		String result = wechat.invoke("/groups/getid", request);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		return node.get("groupid").asInt();
 	}
 
@@ -101,9 +101,9 @@ public class WechatGroupControl {
 		String request = sb.toString();
 		String result = wechat.invoke("/groups/members/update", request);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] {
-					node.get("errcode").asText(), node.get("errmsg").asText() });
+		if (node.has("errcode") && node.get("errcode").asInt() > 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
 }
