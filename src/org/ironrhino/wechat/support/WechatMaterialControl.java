@@ -134,7 +134,7 @@ public class WechatMaterialControl {
 		if (file.length() > mediaType.getMaxFileLength())
 			throw new ErrorMessage(file + " is large than " + mediaType.getMaxFileLength());
 		StringBuilder sb = new StringBuilder(wechat.getApiBaseUrl());
-		sb.append("/meterial/add_meterial?access_token=");
+		sb.append("/material/add_material?access_token=");
 		sb.append(wechat.fetchAccessToken());
 		HttpPost httppost = new HttpPost(sb.toString());
 		FileBody media = new FileBody(file);
