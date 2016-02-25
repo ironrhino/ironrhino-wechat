@@ -127,7 +127,7 @@ public class Wechat {
 	public void setAppSecret(String appSecret) {
 		this.appSecret = appSecret;
 	}
-	
+
 	public String getApiBaseUrl() {
 		return apiBaseUrl;
 	}
@@ -456,9 +456,9 @@ public class Wechat {
 
 	public String buildAuthorizeUrl(String redirect_uri, String state) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?response_type=code&scope=snsapi_base");
-		sb.append("&appid=").append(getAppId());
+		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?appid=").append(getAppId());
 		sb.append("&redirect_uri=").append(URLEncoder.encode(absolutizeUri(redirect_uri), "utf-8"));
+		sb.append("&response_type=code&scope=snsapi_base");
 		if (StringUtils.isNotBlank(state))
 			sb.append("&state=").append(URLEncoder.encode(state, "utf-8"));
 		sb.append("#wechat_redirect");
@@ -467,10 +467,10 @@ public class Wechat {
 
 	public WechatUserInfo getUserInfoByCode(String code) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=authorization_code");
-		sb.append("&appid=").append(getAppId());
+		sb.append("https://api.weixin.qq.com/sns/oauth2/access_token?appid=").append(getAppId());
 		sb.append("&secret=").append(getAppSecret());
 		sb.append("&code=").append(code);
+		sb.append("&grant_type=authorization_code");
 		String result = HttpClientUtils.getResponseText(sb.toString());
 		logger.info("getUserInfoByCode received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);

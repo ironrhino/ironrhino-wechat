@@ -331,9 +331,9 @@ public class CorpWechat {
 
 	public String buildAuthorizeUrl(String redirect_uri, String state) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?response_type=code&scope=snsapi_base");
-		sb.append("&appid=").append(getCorpId());
+		sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?appid=").append(getCorpId());
 		sb.append("&redirect_uri=").append(URLEncoder.encode(absolutizeUri(redirect_uri), "utf-8"));
+		sb.append("&response_type=code&scope=snsapi_base");
 		if (StringUtils.isNotBlank(state))
 			sb.append("&state=").append(URLEncoder.encode(state, "utf-8"));
 		sb.append("#wechat_redirect");
