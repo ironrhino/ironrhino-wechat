@@ -6,17 +6,17 @@ public class WechatGroup implements Serializable {
 
 	private static final long serialVersionUID = -2244954252146981392L;
 
-	private int id;
+	private Integer id;
 
 	private String name;
 
 	private int count;
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

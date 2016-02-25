@@ -34,14 +34,14 @@ public class WechatGroupControl {
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-		int id = node.get("group").get("id").asInt();
+		Integer id = node.get("group").get("id").asInt();
 		WechatGroup group = new WechatGroup();
 		group.setId(id);
 		group.setName(name);
 		return group;
 	}
 
-	public void rename(int id, String name) throws IOException {
+	public void rename(Integer id, String name) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"group\":{\"id\":");
 		sb.append(id);
@@ -77,7 +77,7 @@ public class WechatGroupControl {
 		return list;
 	}
 
-	public int getGroupId(String openid) throws IOException {
+	public Integer getGroupId(String openid) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"openid\":\"");
 		sb.append(openid);
@@ -91,7 +91,7 @@ public class WechatGroupControl {
 		return node.get("groupid").asInt();
 	}
 
-	public void move(String openid, String toGroupId) throws IOException {
+	public void move(String openid, Integer toGroupId) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"openid\":\"");
 		sb.append(openid);
