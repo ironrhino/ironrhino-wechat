@@ -20,8 +20,8 @@ import org.ironrhino.wechat.model.WechatMaterialCount;
 import org.ironrhino.wechat.model.WechatMaterialList;
 import org.ironrhino.wechat.model.WechatMedia;
 import org.ironrhino.wechat.model.WechatMediaType;
+import org.ironrhino.wechat.model.WechatNewsArticle;
 import org.ironrhino.wechat.model.WechatNewsList;
-import org.ironrhino.wechat.model.WechatNewsMessage.Article;
 import org.ironrhino.wechat.model.WechatVideo;
 import org.ironrhino.wechat.service.Wechat;
 import org.slf4j.Logger;
@@ -69,8 +69,8 @@ public class WechatMaterialControl {
 		return node.get("url").textValue();
 	}
 
-	public String uploadNews(List<Article> articles) throws IOException {
-		Map<String, List<Article>> map = new HashMap<>();
+	public String uploadNews(List<WechatNewsArticle> articles) throws IOException {
+		Map<String, List<WechatNewsArticle>> map = new HashMap<>();
 		map.put("articles", articles);
 		String request = JsonUtils.toJson(map);
 		String result = wechat.invoke("/material/add_news", request);
@@ -81,7 +81,7 @@ public class WechatMaterialControl {
 		return node.get("media_id").textValue();
 	}
 
-	public void updateNews(String media_id, int index, Article article) throws IOException {
+	public void updateNews(String media_id, int index, WechatNewsArticle article) throws IOException {
 		Map<String, Object> map = new HashMap<>();
 		map.put("media_id", media_id);
 		map.put("index", index);
@@ -94,13 +94,13 @@ public class WechatMaterialControl {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
-	public List<Article> getNews(String media_id) throws IOException {
+	public List<WechatNewsArticle> getNews(String media_id) throws IOException {
 		String result = getMaterial(media_id);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		node = node.get("news_item");
 		if (node == null)
 			return null;
-		return JsonUtils.fromJson(node.toString(), new TypeReference<List<Article>>() {
+		return JsonUtils.fromJson(node.toString(), new TypeReference<List<WechatNewsArticle>>() {
 		});
 	}
 
