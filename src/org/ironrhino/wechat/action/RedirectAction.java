@@ -50,24 +50,33 @@ public class RedirectAction extends BaseAction {
 		UserDetails userDetails = AuthzUtils.getUserDetails();
 		if (userDetails != null)
 			return REDIRECT;
-		if (StringUtils.isNotBlank(code) && StringUtils.isNotBlank(state)) {
-			String openid = null;
-			try {
-				openid = wechat.getUserInfoByCode(code).getOpenid();
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				if (AppInfo.getStage() == Stage.DEVELOPMENT) {
-					openid = code;
-				} else {
-					addActionError("获取openid失败: " + e.getLocalizedMessage());
+		if (StringUtils.isNotBlank(state)) {
+			if (StringUtils.isNotBlank(code)) {
+				String openid = null;
+				try {
+					openid = wechat.getUserInfoByCode(code).getOpenid();
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					if (AppInfo.getStage() == Stage.DEVELOPMENT) {
+						openid = code;
+					} else {
+						addActionError("获取openid失败: " + e.getLocalizedMessage());
+						return ERROR;
+					}
+				}
+				try {
+					userDetails = userDetailsService.loadUserByUsername(openid);
+					AuthzUtils.autoLogin(userDetails);
+					targetUrl = state;
+				} catch (UsernameNotFoundException e) {
+					if (StringUtils.isNotBlank(fallbackUrl)) {
+						targetUrl = fallbackUrl;
+						return REDIRECT;
+					}
+					addActionError("请先关注公众号");
 					return ERROR;
 				}
-			}
-			try {
-				userDetails = userDetailsService.loadUserByUsername(openid);
-				AuthzUtils.autoLogin(userDetails);
-				targetUrl = state;
-			} catch (UsernameNotFoundException e) {
+			} else {
 				if (StringUtils.isNotBlank(fallbackUrl)) {
 					targetUrl = fallbackUrl;
 					return REDIRECT;
