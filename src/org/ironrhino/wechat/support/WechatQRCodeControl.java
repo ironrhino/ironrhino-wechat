@@ -73,8 +73,10 @@ public class WechatQRCodeControl {
 		public QRCodeRequest(int scene_id, int expire_seconds) {
 			if (scene_id < 1)
 				throw new IllegalArgumentException("二维码场景值必须大于0");
-			if (expire_seconds < 1 || expire_seconds > 604800)
-				throw new IllegalArgumentException("二维码有效时间只支持1-604800");
+			if (expire_seconds < 1)
+				throw new IllegalArgumentException("二维码有效时间必须大于0");
+			if (expire_seconds < 1 || expire_seconds > 30 * 24 * 3600)
+				throw new IllegalArgumentException("二维码有效时间最大30天");
 			this.expire_seconds = expire_seconds;
 			this.action_name = "QR_SCENE";
 			Map<String, Serializable> scene = new HashMap<>();
