@@ -8,6 +8,7 @@ import org.ironrhino.core.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.NotWritablePropertyException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -37,6 +38,8 @@ public class WechatVideo implements Serializable {
 					value = value.substring(0, value.lastIndexOf('/') + 1);
 				try {
 					bwi.setPropertyValue(name, value);
+				} catch (NotWritablePropertyException e) {
+					// ignore
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}

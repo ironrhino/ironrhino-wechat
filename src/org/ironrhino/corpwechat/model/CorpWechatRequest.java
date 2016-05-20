@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.NotWritablePropertyException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -70,9 +71,12 @@ public class CorpWechatRequest implements Serializable {
 						Node subNode = subNodeList.item(j);
 						if (subNode.getNodeType() == Node.ELEMENT_NODE) {
 							Element subTag = (Element) subNode;
-							bwi.setPropertyValue(StringUtils
-									.uncapitalize(subTag.getTagName()), subTag
-									.getTextContent());
+							try {
+								bwi.setPropertyValue(StringUtils.uncapitalize(subTag.getTagName()),
+										subTag.getTextContent());
+							} catch (NotWritablePropertyException e) {
+								// ignore
+							}
 						}
 					}
 					continue;
@@ -83,6 +87,8 @@ public class CorpWechatRequest implements Serializable {
 				String value = tag.getTextContent();
 				try {
 					bwi.setPropertyValue(StringUtils.uncapitalize(name), value);
+				} catch (NotWritablePropertyException e) {
+					// ignore
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
