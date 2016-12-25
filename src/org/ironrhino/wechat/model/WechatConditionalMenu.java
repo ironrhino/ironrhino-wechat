@@ -36,7 +36,7 @@ public class WechatConditionalMenu extends WechatMenu {
 
 		private static final long serialVersionUID = 3600533330902295160L;
 
-		private String group_id;
+		private String tag_id;
 		private String sex;
 		private String country;
 		private String province;
@@ -44,12 +44,12 @@ public class WechatConditionalMenu extends WechatMenu {
 		private String client_platform_type;
 		private String language;
 
-		public String getGroup_id() {
-			return group_id;
+		public String getTag_id() {
+			return tag_id;
 		}
 
-		public void setGroup_id(String group_id) {
-			this.group_id = group_id;
+		public void setTag_id(String tag_id) {
+			this.tag_id = tag_id;
 		}
 
 		public String getSex() {
