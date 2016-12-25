@@ -3,7 +3,7 @@
 
 	<property name="dist.wechat-jar.name" value="ironrhino-wechat-${version}.jar" />
 	<property name="dist.wechat-jar-sources.name" value="ironrhino-wechat-${version}-sources.jar" />
-	<property name="dist.wechat-jar.includes" value="org/ironrhino/*wechat/**,com/qq/**,resources/view/**" />
+	<property name="dist.wechat-jar.includes" value="org/ironrhino/*wechat/**,com/qq/**,resources/view/*" />
 	<property name="dist.wechat-autoreply-jar.name" value="ironrhino-wechat-autoreply-${version}.jar" />
 	<property name="dist.wechat-autoreply-jar-sources.name" value="ironrhino-wechat-autoreply-${version}-sources.jar" />
 	<property name="dist.wechat-autoreply-jar.includes" value="org/ironrhino/wechat/autoreply/**" />
