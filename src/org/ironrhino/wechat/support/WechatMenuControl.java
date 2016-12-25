@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
-@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 public class WechatMenuControl {
 
 	@Autowired
@@ -39,6 +39,15 @@ public class WechatMenuControl {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 	}
 
+	public void create(String json) throws IOException {
+		String result = wechat.invoke("/menu/create", json);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		int errcode = node.get("errcode").asInt();
+		if (errcode > 0)
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+	}
+
 	public WechatMenu get() throws IOException {
 		String result = wechat.invoke("/menu/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
@@ -46,6 +55,15 @@ public class WechatMenuControl {
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		return new WechatMenu(node.get("menu").toString());
+	}
+
+	public String getAsText() throws IOException {
+		String result = wechat.invoke("/menu/get", null);
+		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+		if (node.has("errcode"))
+			throw new ErrorMessage("errcode:{0},errmsg:{1}",
+					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+		return node.get("menu").toString();
 	}
 
 	public void delete() throws IOException {
