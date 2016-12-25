@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 
-	<property name="dist.jar.name" value="ironrhino-wechat-${version}.jar" />
-	<property name="dist.jar-sources.name" value="ironrhino-wechat-${version}-sources.jar" />
-	<property name="dist.jar.includes" value="org/ironrhino/*wechat/**,com/qq/**,resources/view/**" />
+	<property name="dist.wechat-jar.name" value="ironrhino-wechat-${version}.jar" />
+	<property name="dist.wechat-jar-sources.name" value="ironrhino-wechat-${version}-sources.jar" />
+	<property name="dist.wechat-jar.includes" value="org/ironrhino/*wechat/**,com/qq/**,resources/view/**" />
+	<property name="dist.wechat-autoreply-jar.name" value="ironrhino-wechat-autoreply-${version}.jar" />
+	<property name="dist.wechat-autoreply-jar-sources.name" value="ironrhino-wechat-autoreply-${version}-sources.jar" />
+	<property name="dist.wechat-autoreply-jar.includes" value="org/ironrhino/wechat/autoreply/**" />
 
 	<target name="pre-jar">
-		<delete file="${target.dir}/${dist.jar.name}" />
+		<delete file="${target.dir}/${dist.wechat-jar.name}" />
 	</target>
 
 	<target name="post-jar">
-		<jar jarfile="${target.dir}/${dist.jar.name}" basedir="${classes.dir}" includes="${dist.jar.includes}" />
-		<jar jarfile="${target.dir}/${dist.jar-sources.name}" basedir="${src.dir}" includes="${dist.jar.includes}" />
+		<jar jarfile="${target.dir}/${dist.wechat-jar.name}" basedir="${classes.dir}" includes="${dist.wechat-jar.includes}" excludes="${dist.wechat-autoreply-jar.includes}"/>
+		<jar jarfile="${target.dir}/${dist.wechat-jar-sources.name}" basedir="${src.dir}" includes="${dist.wechat-jar.includes}" excludes="${dist.wechat-autoreply-jar.includes}" />
+		<jar jarfile="${target.dir}/${dist.wechat-autoreply-jar.name}" basedir="${classes.dir}" includes="${dist.wechat-autoreply-jar.includes}" />
+		<jar jarfile="${target.dir}/${dist.wechat-autoreply-jar-sources.name}" basedir="${src.dir}" includes="${dist.wechat-autoreply-jar.includes}" />
 	</target>
 
 </project>
