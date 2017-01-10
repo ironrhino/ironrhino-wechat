@@ -156,8 +156,8 @@ public class WechatMenu implements Serializable {
 				case view:
 					if (StringUtils.isBlank(url))
 						throw new IllegalArgumentException("url shouldn't be blank");
-					else if (url.getBytes().length > 256)
-						throw new IllegalArgumentException("url shouldn't be more than 256 bytes");
+					else if (url.getBytes().length > 1024)
+						throw new IllegalArgumentException("url shouldn't be more than 1024 bytes");
 					break;
 
 				case click:

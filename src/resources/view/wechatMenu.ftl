@@ -22,7 +22,7 @@
 			</#if>
 			<#list 0..size as index>
 			<tr class="linkage">
-				<td><@s.textfield theme="simple" name="menu.button[${index}].name" class="required" style="width:100px;"/></td>
+				<td><@s.textfield theme="simple" name="menu.button[${index}].name" class="required" style="width:100px;" maxlength=8/></td>
 				<td><@s.select theme="simple" name="menu.button[${index}].type" class="linkage_switch" style="width:80px;" list="@org.ironrhino.wechat.model.WechatButtonType@values()" listKey="name" listValue="displayName" headerKey="" headerValue="父菜单"/></td>
 				<td>
 				<@s.textfield theme="simple" name="menu.button[${index}].url" class="required linkage_component view" type="url"/>
@@ -46,7 +46,7 @@
 							</#if>
 							<#list 0..size as index2>
 							<tr class="linkage">
-								<td><@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].name" class="required" style="width:100px;"/></td>
+								<td><@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].name" class="required" style="width:100px;" maxlength=20/></td>
 								<td><@s.select theme="simple" name="menu.button[${index}].sub_button[${index2}].type" class="linkage_switch required" style="width:80px;" list="@org.ironrhino.wechat.model.WechatButtonType@values()" listKey="name" listValue="displayName"/></td>
 								<td>
 									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" class="required linkage_component view" type="url"/>
