@@ -10,7 +10,7 @@
 			<tr>
 				<th style="width:120px;">标题</th>
 				<th style="width:100px;">${getText('type')}</th>
-				<th style="width:230px;">${getText('value')}</th>
+				<th style="width:<#if fluidLayout><#if viewOnly>25<#else>23</#if>%<#else><#if viewOnly>300<#else>230</#if>px</#if>;">${getText('value')}</th>
 				<th>子菜单</th>
 				<th class="manipulate"></th>
 			</tr>
@@ -25,10 +25,10 @@
 				<td><@s.textfield theme="simple" name="menu.button[${index}].name" class="required" style="width:100px;" maxlength=8/></td>
 				<td><@s.select theme="simple" name="menu.button[${index}].type" class="linkage_switch" style="width:80px;" list="buttonTypes" listKey="name" listValue="displayName" headerKey="" headerValue="父菜单"/></td>
 				<td>
-				<@s.textfield theme="simple" name="menu.button[${index}].url" class="required linkage_component view" type="url" placeholder="链接地址"/>
+				<@s.textfield theme="simple" name="menu.button[${index}].url" style="width:95%;" class="required linkage_component view" type="url" placeholder="链接地址"/>
 				<#if !viewOnly>
-				<@s.textfield theme="simple" name="menu.button[${index}].key" class="required linkage_component click scancode_push scancode_waitmsg pic_sysphoto pic_photo_or_album pic_weixin location_select" placeholder="事件代码"/>
-				<@s.textfield theme="simple" name="menu.button[${index}].media_id" class="required linkage_component media_id view_limited" placeholder="素材ID"/>
+				<@s.textfield theme="simple" name="menu.button[${index}].key" style="width:95%;" class="required linkage_component click scancode_push scancode_waitmsg pic_sysphoto pic_photo_or_album pic_weixin location_select" placeholder="事件代码"/>
+				<@s.textfield theme="simple" name="menu.button[${index}].media_id" style="width:95%;" class="required linkage_component media_id view_limited" placeholder="素材ID"/>
 				</#if>
 				</td>
 				<td>
@@ -39,7 +39,7 @@
 								<#if !viewOnly>
 								<th style="width:100px;">${getText('type')}</th>
 								</#if>
-								<th style="width:230px;">${getText('value')}</th>
+								<th style="width:<#if fluidLayout><#if viewOnly>65<#else>55</#if>%<#else><#if viewOnly>300<#else>230</#if>px</#if>;">${getText('value')}</th>
 								<th class="manipulate"></th>
 							</tr>
 						</thead>
@@ -57,11 +57,11 @@
 								<td>
 								<#if viewOnly>
 									<@s.hidden name="menu.button[${index}].sub_button[${index2}].type" value="view"/>
-									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" class="required" type="url" placeholder="链接地址"/>
+									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" style="width:95%;" class="required" type="url" placeholder="链接地址"/>
 								<#else>	
-									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" class="required linkage_component view" type="url" placeholder="链接地址"/>
-									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].key" class="required linkage_component click scancode_push scancode_waitmsg pic_sysphoto pic_photo_or_album pic_weixin location_select" placeholder="事件代码"/>
-									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].media_id" class="required linkage_component media_id view_limited" placeholder="素材ID"/>
+									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" style="width:95%;" class="required linkage_component view" type="url" placeholder="链接地址"/>
+									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].key" style="width:95%;" class="required linkage_component click scancode_push scancode_waitmsg pic_sysphoto pic_photo_or_album pic_weixin location_select" placeholder="事件代码"/>
+									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].media_id" style="width:95%;" class="required linkage_component media_id view_limited" placeholder="素材ID"/>
 								</#if>
 								</td>
 								<td class="manipulate"></td>
