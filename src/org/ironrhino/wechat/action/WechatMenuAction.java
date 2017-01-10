@@ -26,9 +26,8 @@ public class WechatMenuAction extends BaseAction {
 		this.json = json;
 	}
 
-	@Override
-	@InputConfig(methodName = INPUT)
-	public String execute() throws Exception {
+	@InputConfig(methodName = "inputraw")
+	public String raw() throws Exception {
 		if (!JsonUtils.isValidJson(json)) {
 			addActionError("不是合法的JSON");
 		} else {
@@ -38,10 +37,10 @@ public class WechatMenuAction extends BaseAction {
 		return SUCCESS;
 	}
 
-	public String input() throws Exception {
+	public String inputraw() throws Exception {
 		json = wechatMenuControl.getAsText();
 		json = JsonUtils.prettify(json);
-		return SUCCESS;
+		return "raw";
 	}
 
 }

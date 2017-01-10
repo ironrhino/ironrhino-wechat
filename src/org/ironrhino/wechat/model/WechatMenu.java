@@ -49,8 +49,8 @@ public class WechatMenu implements Serializable {
 
 	public void validate() {
 		int size = button.size();
-		if (size < 1 || size > 3)
-			throw new IllegalArgumentException("number of sub_button should be 1-3");
+		if (size > 3)
+			throw new IllegalArgumentException("一级菜单最多允许3个");
 		for (WechatButton b : button)
 			b.validate(false);
 	}
@@ -78,6 +78,7 @@ public class WechatMenu implements Serializable {
 		private WechatButtonType type;
 		private String key;
 		private String url;
+		private String media_id;
 		private List<WechatButton> sub_button = new ArrayList<WechatMenu.WechatButton>();
 
 		public String getName() {
@@ -112,6 +113,14 @@ public class WechatMenu implements Serializable {
 			this.url = url;
 		}
 
+		public String getMedia_id() {
+			return media_id;
+		}
+
+		public void setMedia_id(String media_id) {
+			this.media_id = media_id;
+		}
+
 		public List<WechatButton> getSub_button() {
 			return sub_button;
 		}
@@ -136,28 +145,42 @@ public class WechatMenu implements Serializable {
 				if (StringUtils.isNotBlank(url))
 					throw new IllegalArgumentException("url should be blank,but was " + url);
 				int size = sub_button.size();
-				if (size < 1 || size > 5)
-					throw new IllegalArgumentException("number of sub_button should be 1-5");
+				if (size > 5)
+					throw new IllegalArgumentException("二级菜单最多允许5个");
 				for (WechatButton button : sub_button)
 					button.validate(true);
 			} else {
 				if (type == null)
 					throw new IllegalArgumentException("type shouldn't be blank");
-				if (type == WechatButtonType.view) {
+				switch (type) {
+				case view:
 					if (StringUtils.isBlank(url))
 						throw new IllegalArgumentException("url shouldn't be blank");
 					else if (url.getBytes().length > 256)
 						throw new IllegalArgumentException("url shouldn't be more than 256 bytes");
-					if (StringUtils.isNotBlank(key))
-						throw new IllegalArgumentException("key should be blank,but was " + key);
-				} else {
+					break;
+
+				case click:
+				case scancode_push:
+				case scancode_waitmsg:
+				case pic_sysphoto:
+				case pic_photo_or_album:
+				case pic_weixin:
+				case location_select:
 					if (StringUtils.isBlank(key))
 						throw new IllegalArgumentException("key shouldn't be blank");
 					else if (key.getBytes().length > 128)
 						throw new IllegalArgumentException("key shouldn't be more than 128 bytes");
-					if (StringUtils.isNotBlank(url))
-						throw new IllegalArgumentException("url should be blank,but was " + url);
+					break;
+				case media_id:
+				case view_limited:
+					if (StringUtils.isBlank(media_id))
+						throw new IllegalArgumentException("media_id shouldn't be blank");
+					break;
+				default:
+					break;
 				}
+
 			}
 		}
 
@@ -179,7 +202,18 @@ public class WechatMenu implements Serializable {
 	}
 
 	public static enum WechatButtonType {
-		click, view, scancode_push, scancode_waitmsg, pic_sysphoto, pic_photo_or_album, pic_weixin, location_select, media_id, view_limited
+		click("点击"), view("跳转"), scancode_push("扫码"), scancode_waitmsg("扫码等待"), pic_sysphoto(
+				"拍照发图"), pic_photo_or_album("拍照或相册发图"), pic_weixin(
+						"微信相册发图"), location_select("地理位置选择"), media_id("永久素材"), view_limited("查看图文");
+		private String displayName;
+
+		private WechatButtonType(String displayName) {
+			this.displayName = displayName;
+		}
+
+		public String toString() {
+			return displayName;
+		}
 	}
 
 }

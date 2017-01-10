@@ -11,7 +11,7 @@
 		</div>
 		</#if>
 		<@s.textarea theme="simple" name="text" class="required container" cssStyle="height:300px;"/>
-		<button type="submit" class="btn btn-block btn-primary" style="margin-top:10px;"><strong>${action.getText('confirm')}</strong></button>
+		<div style="text-align:center;"><button type="submit" class="btn btn-primary" style="margin-top:10px;"><strong>${action.getText('confirm')}</strong></button></div>
 	</@s.form>
 </body>
 </html></#escape>
