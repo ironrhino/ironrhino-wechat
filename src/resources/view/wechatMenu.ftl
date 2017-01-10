@@ -56,7 +56,7 @@
 								</#if>
 								<td>
 								<#if viewOnly>
-									<@s.hidden name="menu.button[${index}].sub_button[${index2}].type" value="view"/>
+									<@s.hidden name="menu.button[${index}].sub_button[${index2}].type" class="fixedvalue" value="view"/>
 									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" style="width:95%;" class="required" type="url" placeholder="链接地址"/>
 								<#else>	
 									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" style="width:95%;" class="required linkage_component view" type="url" placeholder="链接地址"/>
