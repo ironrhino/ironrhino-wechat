@@ -23,18 +23,22 @@
 			<#list 0..size as index>
 			<tr class="linkage">
 				<td><@s.textfield theme="simple" name="menu.button[${index}].name" class="required" style="width:100px;" maxlength=8/></td>
-				<td><@s.select theme="simple" name="menu.button[${index}].type" class="linkage_switch" style="width:80px;" list="@org.ironrhino.wechat.model.WechatButtonType@values()" listKey="name" listValue="displayName" headerKey="" headerValue="父菜单"/></td>
+				<td><@s.select theme="simple" name="menu.button[${index}].type" class="linkage_switch" style="width:80px;" list="buttonTypes" listKey="name" listValue="displayName" headerKey="" headerValue="父菜单"/></td>
 				<td>
 				<@s.textfield theme="simple" name="menu.button[${index}].url" class="required linkage_component view" type="url" placeholder="链接地址"/>
+				<#if !viewOnly>
 				<@s.textfield theme="simple" name="menu.button[${index}].key" class="required linkage_component click scancode_push scancode_waitmsg pic_sysphoto pic_photo_or_album pic_weixin location_select" placeholder="事件代码"/>
 				<@s.textfield theme="simple" name="menu.button[${index}].media_id" class="required linkage_component media_id view_limited" placeholder="素材ID"/>
+				</#if>
 				</td>
 				<td>
 					<table class="datagrid showonadd linkage_component linkage_default" data-maxrows="5">
 						<thead>
 							<tr>
 								<th style="width:120px;">标题</th>
+								<#if !viewOnly>
 								<th style="width:100px;">${getText('type')}</th>
+								</#if>
 								<th style="width:230px;">${getText('value')}</th>
 								<th class="manipulate"></th>
 							</tr>
@@ -45,13 +49,20 @@
 								<#assign size = menu.button[index].sub_button?size-1>
 							</#if>
 							<#list 0..size as index2>
-							<tr class="linkage">
+							<tr<#if !viewOnly> class="linkage"</#if>>
 								<td><@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].name" class="required" style="width:100px;" maxlength=20/></td>
-								<td><@s.select theme="simple" name="menu.button[${index}].sub_button[${index2}].type" class="linkage_switch required" style="width:80px;" list="@org.ironrhino.wechat.model.WechatButtonType@values()" listKey="name" listValue="displayName"/></td>
+								<#if !viewOnly>
+								<td><@s.select theme="simple" name="menu.button[${index}].sub_button[${index2}].type" class="linkage_switch required" style="width:80px;" list="buttonTypes" listKey="name" listValue="displayName"/></td>
+								</#if>
 								<td>
+								<#if viewOnly>
+									<@s.hidden name="menu.button[${index}].sub_button[${index2}].type" value="view"/>
+									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" class="required" type="url" placeholder="链接地址"/>
+								<#else>	
 									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].url" class="required linkage_component view" type="url" placeholder="链接地址"/>
 									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].key" class="required linkage_component click scancode_push scancode_waitmsg pic_sysphoto pic_photo_or_album pic_weixin location_select" placeholder="事件代码"/>
 									<@s.textfield theme="simple" name="menu.button[${index}].sub_button[${index2}].media_id" class="required linkage_component media_id view_limited" placeholder="素材ID"/>
+								</#if>
 								</td>
 								<td class="manipulate"></td>
 							</tr>

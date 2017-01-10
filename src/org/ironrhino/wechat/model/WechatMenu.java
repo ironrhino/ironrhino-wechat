@@ -201,4 +201,28 @@ public class WechatMenu implements Serializable {
 
 	}
 
+	public static enum WechatButtonType {
+		click("点击"), view("跳转"), scancode_push("扫码"), scancode_waitmsg("扫码等待"), pic_sysphoto(
+				"拍照发图"), pic_photo_or_album("拍照或相册发图"), pic_weixin(
+						"微信相册发图"), location_select("地理位置选择"), media_id("永久素材"), view_limited("查看图文");
+
+		private String displayName;
+
+		private WechatButtonType(String displayName) {
+			this.displayName = displayName;
+		}
+
+		public String getName() {
+			return name();
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public String toString() {
+			return displayName;
+		}
+	}
+
 }
