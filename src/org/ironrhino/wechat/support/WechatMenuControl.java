@@ -51,18 +51,25 @@ public class WechatMenuControl {
 	public WechatMenu get() throws IOException {
 		String result = wechat.invoke("/menu/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}",
-					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+		if (node.has("errcode")) {
+			String errcode = node.get("errcode").asText();
+			if ("46003".equals(errcode))
+				return null;
+			throw new ErrorMessage("errcode:{0},errmsg:{1}", new Object[] { errcode, node.get("errmsg").asText() });
+		}
 		return new WechatMenu(node.get("menu").toString());
 	}
 
 	public String getAsText() throws IOException {
 		String result = wechat.invoke("/menu/get", null);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
+		if (node.has("errcode")) {
+			String errcode = node.get("errcode").asText();
+			if ("46003".equals(errcode))
+				return null;
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+		}
 		return node.get("menu").toString();
 	}
 

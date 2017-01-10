@@ -3,6 +3,7 @@ package org.ironrhino.wechat.action;
 import org.ironrhino.core.metadata.AutoConfig;
 import org.ironrhino.core.struts.BaseAction;
 import org.ironrhino.core.util.JsonUtils;
+import org.ironrhino.wechat.model.WechatMenu;
 import org.ironrhino.wechat.support.WechatMenuControl;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,12 +19,37 @@ public class WechatMenuAction extends BaseAction {
 
 	private String json;
 
+	private WechatMenu menu;
+
+	public WechatMenu getMenu() {
+		return menu;
+	}
+
+	public void setMenu(WechatMenu menu) {
+		this.menu = menu;
+	}
+
 	public String getJson() {
 		return json;
 	}
 
 	public void setJson(String json) {
 		this.json = json;
+	}
+
+	@Override
+	@InputConfig(methodName = INPUT)
+	public String execute() throws Exception {
+		wechatMenuControl.create(menu);
+		addActionMessage(getText("operate.success"));
+		return SUCCESS;
+	}
+
+	public String input() throws Exception {
+		menu = wechatMenuControl.get();
+		if (menu == null)
+			menu = new WechatMenu();
+		return SUCCESS;
 	}
 
 	@InputConfig(methodName = "inputraw")
