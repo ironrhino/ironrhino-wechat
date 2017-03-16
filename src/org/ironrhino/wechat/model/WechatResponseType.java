@@ -2,6 +2,7 @@ package org.ironrhino.wechat.model;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ironrhino.core.model.Displayable;
 
 public enum WechatResponseType implements Displayable {
@@ -16,13 +17,11 @@ public enum WechatResponseType implements Displayable {
 			sb.append(msg.getFromUserName());
 			sb.append("]]></FromUserName><CreateTime>");
 			sb.append(msg.getCreateTime());
-			sb.append("</CreateTime><MsgType>").append(name())
-					.append("</MsgType><Content><![CDATA[");
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType><Content><![CDATA[");
 			String content = msg.getContent();
 			try {
 				if (content.getBytes("UTF-8").length > WechatResponse.CONTENT_MAX_BYTES)
-					content = content.substring(0,
-							WechatResponse.CONTENT_MAX_BYTES / 3);
+					content = content.substring(0, WechatResponse.CONTENT_MAX_BYTES / 3);
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
@@ -41,8 +40,7 @@ public enum WechatResponseType implements Displayable {
 			sb.append(msg.getFromUserName());
 			sb.append("]]></FromUserName><CreateTime>");
 			sb.append(msg.getCreateTime());
-			sb.append("</CreateTime><MsgType>").append(name())
-					.append("</MsgType><Image><MediaId>");
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType><Image><MediaId>");
 			sb.append(msg.getMediaId());
 			sb.append("</MediaId></Image></xml>");
 			return sb.toString();
@@ -58,8 +56,7 @@ public enum WechatResponseType implements Displayable {
 			sb.append(msg.getFromUserName());
 			sb.append("]]></FromUserName><CreateTime>");
 			sb.append(msg.getCreateTime());
-			sb.append("</CreateTime><MsgType>").append(name())
-					.append("</MsgType><Voice><MediaId>");
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType><Voice><MediaId>");
 			sb.append(msg.getMediaId());
 			sb.append("</MediaId></Voice></xml>");
 			return sb.toString();
@@ -75,8 +72,7 @@ public enum WechatResponseType implements Displayable {
 			sb.append(msg.getFromUserName());
 			sb.append("]]></FromUserName><CreateTime>");
 			sb.append(msg.getCreateTime());
-			sb.append("</CreateTime><MsgType>").append(name())
-					.append("</MsgType><Video><MediaId>");
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType><Video><MediaId>");
 			sb.append(msg.getMediaId());
 			sb.append("</MediaId>").append("<Title><![CDATA[");
 			sb.append(msg.getTitle());
@@ -96,8 +92,7 @@ public enum WechatResponseType implements Displayable {
 			sb.append(msg.getFromUserName());
 			sb.append("]]></FromUserName><CreateTime>");
 			sb.append(msg.getCreateTime());
-			sb.append("</CreateTime><MsgType>").append(name())
-					.append("</MsgType><Music>").append("<Title><![CDATA[");
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType><Music>").append("<Title><![CDATA[");
 			sb.append(msg.getTitle());
 			sb.append("]]></Title>").append("<Description><![CDATA[");
 			sb.append(msg.getDescription());
@@ -115,8 +110,7 @@ public enum WechatResponseType implements Displayable {
 		@Override
 		public String toXml(WechatResponse msg) {
 			if (msg.getArticles().size() > 10)
-				throw new IllegalArgumentException(
-						"article size can not large than 10");
+				throw new IllegalArgumentException("article size can not large than 10");
 			StringBuilder sb = new StringBuilder();
 			sb.append("<xml><ToUserName><![CDATA[");
 			sb.append(msg.getToUserName());
@@ -124,10 +118,8 @@ public enum WechatResponseType implements Displayable {
 			sb.append(msg.getFromUserName());
 			sb.append("]]></FromUserName><CreateTime>");
 			sb.append(msg.getCreateTime());
-			sb.append("</CreateTime><MsgType>").append(name())
-					.append("</MsgType>").append("<ArticleCount>")
-					.append(msg.getArticles().size()).append("</ArticleCount>")
-					.append("<Articles>");
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType>").append("<ArticleCount>")
+					.append(msg.getArticles().size()).append("</ArticleCount>").append("<Articles>");
 			for (WechatArticle article : msg.getArticles()) {
 				sb.append("<item><Title><![CDATA[");
 				sb.append(article.getTitle());
@@ -140,6 +132,24 @@ public enum WechatResponseType implements Displayable {
 				sb.append("]]></Url></item>");
 			}
 			sb.append("</Articles></xml>");
+			return sb.toString();
+		}
+	},
+	transfer_customer_service {
+		@Override
+		public String toXml(WechatResponse msg) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("<xml><ToUserName><![CDATA[");
+			sb.append(msg.getToUserName());
+			sb.append("]]></ToUserName><FromUserName><![CDATA[");
+			sb.append(msg.getFromUserName());
+			sb.append("]]></FromUserName><CreateTime>");
+			sb.append(msg.getCreateTime());
+			sb.append("</CreateTime><MsgType>").append(name()).append("</MsgType>");
+			if (StringUtils.isNotBlank(msg.getKfAccount()))
+				sb.append("<TransInfo><KfAccount><![CDATA[").append(msg.getToUserName())
+						.append("]]></KfAccount></TransInfo>");
+			sb.append("</xml>");
 			return sb.toString();
 		}
 	};

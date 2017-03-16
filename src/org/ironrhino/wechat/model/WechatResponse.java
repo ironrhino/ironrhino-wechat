@@ -23,6 +23,7 @@ public class WechatResponse implements Serializable {
 	private String HQMusicUrl;
 	private String thumbMediaId;
 	private List<WechatArticle> articles;
+	private String kfAccount;
 
 	public String getToUserName() {
 		return toUserName;
@@ -118,6 +119,14 @@ public class WechatResponse implements Serializable {
 
 	public void setArticles(List<WechatArticle> articles) {
 		this.articles = articles;
+	}
+
+	public String getKfAccount() {
+		return kfAccount;
+	}
+
+	public void setKfAccount(String kfAccount) {
+		this.kfAccount = kfAccount;
 	}
 
 	public static WechatResponse replyTo(WechatRequest request, String content) {

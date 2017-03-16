@@ -38,7 +38,7 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/guava-18.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/h2-1.4.192.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/hibernate-commons-annotations-5.0.1.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/hibernate-core-5.1.1.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/hibernate-core-5.1.5.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/hibernate-validator-5.3.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/HikariCP-2.5.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpclient-4.5.1.jar"/>
@@ -51,9 +51,9 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-security-2.0.2.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-security-config-2.0.2.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-sitemesh-config-2.0.2.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-annotations-2.8.3.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-core-2.8.3.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-databind-2.8.3.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-annotations-2.8.7.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-core-2.8.7.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-databind-2.8.7.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/javamail-1.5.4.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/javassist-3.20.0.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jboss-logging-3.3.0.jar"/>
