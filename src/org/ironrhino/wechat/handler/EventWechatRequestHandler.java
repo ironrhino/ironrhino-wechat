@@ -37,7 +37,7 @@ public class EventWechatRequestHandler implements WechatRequestHandler {
 
 	@Override
 	public WechatResponse handle(WechatRequest request) {
-		if (request.getMsgType() != WechatRequestType.event)
+		if (request.getMsgType() != WechatRequestType.event || request.getEvent() == null)
 			return null;
 		String eventKey = request.getEventKey();
 		switch (request.getEvent()) {
