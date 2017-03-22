@@ -8,6 +8,7 @@ import org.ironrhino.core.struts.BaseAction;
 import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.AppInfo.Stage;
 import org.ironrhino.core.util.AuthzUtils;
+import org.ironrhino.wechat.component.WechatUserToucher;
 import org.ironrhino.wechat.service.Wechat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,9 @@ public class RedirectAction extends BaseAction {
 
 	@Autowired
 	protected UserDetailsService userDetailsService;
+
+	@Autowired(required = false)
+	protected WechatUserToucher wechatUserToucher;
 
 	@Value("${wechat.oauth.fallbackUrl:}")
 	private String fallbackUrl;
@@ -65,7 +69,16 @@ public class RedirectAction extends BaseAction {
 					}
 				}
 				try {
-					userDetails = userDetailsService.loadUserByUsername(openid);
+					try {
+						userDetails = userDetailsService.loadUserByUsername(openid);
+					} catch (UsernameNotFoundException e) {
+						if (wechatUserToucher != null) {
+							wechatUserToucher.touch(openid);
+							userDetails = userDetailsService.loadUserByUsername(openid);
+						} else {
+							throw e;
+						}
+					}
 					AuthzUtils.autoLogin(userDetails);
 					targetUrl = state;
 				} catch (UsernameNotFoundException e) {
