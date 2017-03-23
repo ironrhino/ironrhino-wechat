@@ -28,8 +28,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
-import org.ironrhino.core.metadata.Setup;
-import org.ironrhino.core.metadata.Trigger;
 import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
@@ -84,10 +82,10 @@ public class Wechat {
 	@Value("${wechat.appSecret:secret}")
 	private String appSecret;
 
-	@Value("${wechat.industryId1:}")
+	@Value("${wechat.industryId1:1}")
 	private String industryId1 = "1";
 
-	@Value("${wechat.industryId2:}")
+	@Value("${wechat.industryId2:4}")
 	private String industryId2 = "4";
 
 	@Autowired
@@ -160,7 +158,7 @@ public class Wechat {
 		return response;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long send(WechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -177,7 +175,7 @@ public class Wechat {
 			return null;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long sendTemplate(WechatTemplateMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -194,7 +192,7 @@ public class Wechat {
 			return null;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long sendAll(WechatAllMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -211,7 +209,7 @@ public class Wechat {
 			return null;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public void cancelSendAll(String msg_id) throws IOException {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("msg_id", msg_id);
@@ -308,7 +306,7 @@ public class Wechat {
 		httpClient.close();
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public WechatMedia uploadNews(WechatNewsMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);
@@ -321,8 +319,6 @@ public class Wechat {
 		return new WechatMedia(result);
 	}
 
-	@Trigger
-	@Setup
 	public void setIndustry() throws IOException {
 		Map<String, String> msg = new LinkedHashMap<String, String>();
 		if (StringUtils.isNotBlank(industryId1))

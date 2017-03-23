@@ -3,6 +3,7 @@
 	<@authorize ifAnyGranted="ROLE_ADMINISTRATOR">
 	<li><a href="<@url value="/user"/>" class="ajax view">${action.getText("user")}</a></li>
 	<li><a href="<@url value="/wechatMenu"/>" class="ajax view">自定义菜单</a></li>
+	<li><a href="<@url value="/wechatTemplate"/>" class="ajax view">消息模板管理</a></li>
 	<li><a href="<@url value="/autoreplyRule"/>" class="ajax view">自动回复规则</a></li>
 	</@authorize>
 </ul>
