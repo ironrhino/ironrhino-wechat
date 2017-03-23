@@ -3,11 +3,13 @@ package org.ironrhino.wechat.action;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.struts2.ServletActionContext;
 import org.ironrhino.core.metadata.AutoConfig;
 import org.ironrhino.core.struts.BaseAction;
 import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.AppInfo.Stage;
 import org.ironrhino.core.util.AuthzUtils;
+import org.ironrhino.core.util.RequestUtils;
 import org.ironrhino.wechat.component.WechatUserToucher;
 import org.ironrhino.wechat.service.Wechat;
 import org.slf4j.Logger;
@@ -101,8 +103,10 @@ public class RedirectAction extends BaseAction {
 			if (StringUtils.isBlank(targetUrl))
 				return ERROR;
 			userDetails = AuthzUtils.getUserDetails();
-			if (userDetails == null)
-				targetUrl = wechat.buildAuthorizeUrl("/redirect", targetUrl);
+			if (userDetails == null) {
+				String redirect_uri = RequestUtils.getBaseUrl(ServletActionContext.getRequest()) + "/redirect";
+				targetUrl = wechat.buildAuthorizeUrl(redirect_uri, targetUrl);
+			}
 		}
 		return REDIRECT;
 	}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ironrhino.core.spring.security.LoginEntryPointHandler;
+import org.ironrhino.core.util.RequestUtils;
 import org.ironrhino.wechat.service.Wechat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,8 @@ public class WechatLoginEntryPointHandler implements LoginEntryPointHandler {
 			ua = ua.toLowerCase();
 			if (ua.contains("micromessenger") || ua.contains("mqqbrowser")) {
 				try {
-					return wechat.buildAuthorizeUrl("/redirect", targetUrl);
+					String redirect_uri = RequestUtils.getBaseUrl(request) + "/redirect";
+					return wechat.buildAuthorizeUrl(redirect_uri, targetUrl);
 				} catch (IOException e) {
 					e.printStackTrace();
 					return null;
