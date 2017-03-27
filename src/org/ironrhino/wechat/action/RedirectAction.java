@@ -7,6 +7,7 @@ import org.apache.struts2.ServletActionContext;
 import org.ironrhino.core.metadata.AutoConfig;
 import org.ironrhino.core.struts.BaseAction;
 import org.ironrhino.core.util.AuthzUtils;
+import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.RequestUtils;
 import org.ironrhino.wechat.component.WechatUserToucher;
 import org.ironrhino.wechat.service.Wechat;
@@ -60,6 +61,15 @@ public class RedirectAction extends BaseAction {
 				try {
 					openid = wechat.getUserInfoByCode(code).getOpenid();
 				} catch (Exception e) {
+					if (e instanceof ErrorMessage) {
+						ErrorMessage em = (ErrorMessage) e;
+						if ("40163".equals(em.getArgs()[0])) {
+							// code been used, hints: [ req_id: 0039th20 ]
+							// try again
+							targetUrl = state;
+							return REDIRECT;
+						}
+					}
 					logger.error(e.getMessage(), e);
 					addActionError("获取openid失败: " + e.getLocalizedMessage());
 					return ERROR;
