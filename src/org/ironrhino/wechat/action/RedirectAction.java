@@ -6,8 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.struts2.ServletActionContext;
 import org.ironrhino.core.metadata.AutoConfig;
 import org.ironrhino.core.struts.BaseAction;
-import org.ironrhino.core.util.AppInfo;
-import org.ironrhino.core.util.AppInfo.Stage;
 import org.ironrhino.core.util.AuthzUtils;
 import org.ironrhino.core.util.RequestUtils;
 import org.ironrhino.wechat.component.WechatUserToucher;
@@ -63,12 +61,8 @@ public class RedirectAction extends BaseAction {
 					openid = wechat.getUserInfoByCode(code).getOpenid();
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
-					if (AppInfo.getStage() == Stage.DEVELOPMENT) {
-						openid = code;
-					} else {
-						addActionError("获取openid失败: " + e.getLocalizedMessage());
-						return ERROR;
-					}
+					addActionError("获取openid失败: " + e.getLocalizedMessage());
+					return ERROR;
 				}
 				try {
 					try {
