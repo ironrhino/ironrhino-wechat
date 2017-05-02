@@ -162,9 +162,7 @@ public class Wechat {
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long send(WechatMessage msg) throws IOException {
 		String json = msg.toString();
-		logger.info("sending: {}", json);
 		String result = invoke("/message/custom/send", json);
-		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
@@ -179,9 +177,7 @@ public class Wechat {
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long sendTemplate(WechatTemplateMessage msg) throws IOException {
 		String json = msg.toString();
-		logger.info("sending: {}", json);
 		String result = invoke("/message/template/send", json);
-		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
@@ -196,9 +192,7 @@ public class Wechat {
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public Long sendAll(WechatAllMessage msg) throws IOException {
 		String json = msg.toString();
-		logger.info("sending: {}", json);
 		String result = invoke("/message/mass/sendall", json);
-		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
@@ -215,9 +209,7 @@ public class Wechat {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("msg_id", msg_id);
 		String request = JsonUtils.toJson(map);
-		logger.info("sending: {}", request);
 		String result = invoke("/message/mass/delete", request);
-		logger.info("received: {}", result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		int errcode = node.get("errcode").asInt();
 		if (errcode != 0)
@@ -310,9 +302,7 @@ public class Wechat {
 	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public WechatMedia uploadNews(WechatNewsMessage msg) throws IOException {
 		String json = msg.toString();
-		logger.info("sending: {}", json);
 		String result = invoke("/media/uploadnews", json);
-		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
@@ -328,9 +318,7 @@ public class Wechat {
 			msg.put("industry_id2", industryId2);
 		if (!msg.isEmpty()) {
 			String json = JsonUtils.toJson(msg);
-			logger.info("sending: {}", json);
 			String result = invoke("/template/api_set_industry", json);
-			logger.info("received: " + result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			int errcode = node.get("errcode").asInt();
 			if (errcode != 0)
