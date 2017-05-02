@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,11 +27,13 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
+import org.ironrhino.core.servlet.RequestContext;
 import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
 import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
+import org.ironrhino.core.util.RequestUtils;
 import org.ironrhino.wechat.handler.WechatRequestHandler;
 import org.ironrhino.wechat.model.WechatAllMessage;
 import org.ironrhino.wechat.model.WechatMedia;
@@ -397,8 +398,6 @@ public class Wechat {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		accessToken = node.get("access_token").textValue();
 		int expiresIn = node.get("expires_in").asInt();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.SECOND, expiresIn - 60);
 		cacheManager.put(getAppId(), accessToken, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
 		return accessToken;
 	}
@@ -418,8 +417,6 @@ public class Wechat {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		jsApiTicket = node.get("ticket").textValue();
 		int expiresIn = node.get("expires_in").asInt();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.SECOND, expiresIn - 60);
 		cacheManager.put(getAppId(), jsApiTicket, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
 		return jsApiTicket;
 	}
@@ -438,6 +435,8 @@ public class Wechat {
 				rurl.append(baseUrl);
 			else if (StringUtils.isNotBlank(base))
 				rurl.append(base);
+			else if (RequestContext.getRequest() != null)
+				rurl.append(RequestUtils.getBaseUrl(RequestContext.getRequest()));
 			else
 				rurl.append("http://").append(AppInfo.getHostAddress());
 			rurl.append(uri);
