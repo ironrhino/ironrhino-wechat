@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.interceptor.annotations.InputConfig;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @AutoConfig
 public class WechatMenuAction extends BaseAction {
 
@@ -20,35 +23,17 @@ public class WechatMenuAction extends BaseAction {
 	@Autowired
 	private WechatMenuControl wechatMenuControl;
 
+	@Getter
+	@Setter
 	private boolean viewOnly;
 
+	@Getter
+	@Setter
 	private String json;
 
+	@Getter
+	@Setter
 	private WechatMenu menu;
-
-	public boolean isViewOnly() {
-		return viewOnly;
-	}
-
-	public void setViewOnly(boolean viewOnly) {
-		this.viewOnly = viewOnly;
-	}
-
-	public WechatMenu getMenu() {
-		return menu;
-	}
-
-	public void setMenu(WechatMenu menu) {
-		this.menu = menu;
-	}
-
-	public String getJson() {
-		return json;
-	}
-
-	public void setJson(String json) {
-		this.json = json;
-	}
 
 	public EnumSet<WechatButtonType> getButtonTypes() {
 		return viewOnly ? EnumSet.of(WechatButtonType.view) : EnumSet.allOf(WechatButtonType.class);

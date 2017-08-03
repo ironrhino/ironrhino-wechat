@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.interceptor.annotations.InputConfig;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @AutoConfig
 @StageConditional(Stage.DEVELOPMENT)
 public class SimulateAction extends BaseAction {
@@ -18,21 +21,12 @@ public class SimulateAction extends BaseAction {
 	@Autowired
 	private Wechat wechat;
 
+	@Getter
+	@Setter
 	private String text;
 
+	@Getter
 	private String result;
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getResult() {
-		return result;
-	}
 
 	@Override
 	@InputConfig(resultName = SUCCESS)

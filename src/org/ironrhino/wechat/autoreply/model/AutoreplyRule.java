@@ -20,11 +20,16 @@ import org.ironrhino.core.model.Ordered;
 import org.ironrhino.core.security.role.UserRole;
 import org.ironrhino.core.struts.ValidationException;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @AutoConfig
 @Authorize(ifAllGranted = UserRole.ROLE_ADMINISTRATOR)
 @Table(name = "autoreply_rule")
 @Entity
 @Richtable(alias = "自动回复规则")
+@Getter
+@Setter
 public class AutoreplyRule extends BaseRecordableEntity implements Enableable, Ordered<AutoreplyRule> {
 
 	private static final long serialVersionUID = 7685688986308057811L;
@@ -52,62 +57,6 @@ public class AutoreplyRule extends BaseRecordableEntity implements Enableable, O
 
 	@Version
 	private int version = -1;
-
-	public MatchMode getMatchMode() {
-		return matchMode;
-	}
-
-	public void setMatchMode(MatchMode matchMode) {
-		this.matchMode = matchMode;
-	}
-
-	public String getKeyword() {
-		return keyword;
-	}
-
-	public void setKeyword(String keyword) {
-		this.keyword = keyword;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public int getVersion() {
-		return version;
-	}
-
-	public void setVersion(int version) {
-		this.version = version;
-	}
-
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	public int getDisplayOrder() {
-		return displayOrder;
-	}
-
-	public void setDisplayOrder(int displayOrder) {
-		this.displayOrder = displayOrder;
-	}
 
 	@PrePersist
 	@PreUpdate

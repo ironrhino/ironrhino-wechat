@@ -15,6 +15,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class WechatRequest implements Serializable {
 
 	private static final long serialVersionUID = -7515159900178523381L;
@@ -42,10 +47,6 @@ public class WechatRequest implements Serializable {
 	private Double longitude;
 	private Double precision;
 	private String status;
-
-	public WechatRequest() {
-
-	}
 
 	public WechatRequest(String xml) {
 		this.messageBody = xml;
@@ -93,190 +94,6 @@ public class WechatRequest implements Serializable {
 				}
 			}
 		}
-	}
-
-	public String getMessageBody() {
-		return messageBody;
-	}
-
-	public void setMessageBody(String messageBody) {
-		this.messageBody = messageBody;
-	}
-
-	public Long getMsgId() {
-		return msgId;
-	}
-
-	public void setMsgId(Long msgId) {
-		this.msgId = msgId;
-	}
-
-	public String getToUserName() {
-		return toUserName;
-	}
-
-	public void setToUserName(String toUserName) {
-		this.toUserName = toUserName;
-	}
-
-	public String getFromUserName() {
-		return fromUserName;
-	}
-
-	public void setFromUserName(String fromUserName) {
-		this.fromUserName = fromUserName;
-	}
-
-	public long getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
-	}
-
-	public WechatRequestType getMsgType() {
-		return msgType;
-	}
-
-	public void setMsgType(WechatRequestType msgType) {
-		this.msgType = msgType;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public String getPicUrl() {
-		return picUrl;
-	}
-
-	public void setPicUrl(String picUrl) {
-		this.picUrl = picUrl;
-	}
-
-	public String getMediaId() {
-		return mediaId;
-	}
-
-	public void setMediaId(String mediaId) {
-		this.mediaId = mediaId;
-	}
-
-	public String getFormat() {
-		return format;
-	}
-
-	public void setFormat(String format) {
-		this.format = format;
-	}
-
-	public String getRecognition() {
-		return recognition;
-	}
-
-	public void setRecognition(String recognition) {
-		this.recognition = recognition;
-	}
-
-	public String getThumbMediaId() {
-		return thumbMediaId;
-	}
-
-	public void setThumbMediaId(String thumbMediaId) {
-		this.thumbMediaId = thumbMediaId;
-	}
-
-	public Integer getScale() {
-		return scale;
-	}
-
-	public void setScale(Integer scale) {
-		this.scale = scale;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public WechatEventType getEvent() {
-		return event;
-	}
-
-	public void setEvent(WechatEventType event) {
-		this.event = event;
-	}
-
-	public String getEventKey() {
-		return eventKey;
-	}
-
-	public void setEventKey(String eventKey) {
-		this.eventKey = eventKey;
-	}
-
-	public String getTicket() {
-		return ticket;
-	}
-
-	public void setTicket(String ticket) {
-		this.ticket = ticket;
-	}
-
-	public String getScanType() {
-		return scanType;
-	}
-
-	public void setScanType(String scanType) {
-		this.scanType = scanType;
-	}
-
-	public String getScanResult() {
-		return scanResult;
-	}
-
-	public void setScanResult(String scanResult) {
-		this.scanResult = scanResult;
-	}
-
-	public Double getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(Double latitude) {
-		this.latitude = latitude;
-	}
-
-	public Double getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(Double longitude) {
-		this.longitude = longitude;
-	}
-
-	public Double getPrecision() {
-		return precision;
-	}
-
-	public void setPrecision(Double precision) {
-		this.precision = precision;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
 	}
 
 	@Override

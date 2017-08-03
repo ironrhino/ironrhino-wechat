@@ -54,6 +54,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Component
 public class Wechat {
 
@@ -68,18 +71,27 @@ public class Wechat {
 	@Value("${base:}")
 	private String base;
 
+	@Getter
 	@Value("${wechat.apiBaseUrl:https://api.weixin.qq.com/cgi-bin}")
 	protected String apiBaseUrl;
 
+	@Getter
+	@Setter
 	@Value("${wechat.token:token}")
 	private String token;
 
+	@Getter
+	@Setter
 	@Value("${wechat.encodingAesKey:}")
 	private String encodingAesKey;
 
+	@Getter
+	@Setter
 	@Value("${wechat.appId:id}")
 	private String appId;
 
+	@Getter
+	@Setter
 	@Value("${wechat.appSecret:secret}")
 	private String appSecret;
 
@@ -94,42 +106,6 @@ public class Wechat {
 
 	@Autowired
 	private CacheManager cacheManager;
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public String getEncodingAesKey() {
-		return encodingAesKey;
-	}
-
-	public void setEncodingAesKey(String encodingAesKey) {
-		this.encodingAesKey = encodingAesKey;
-	}
-
-	public String getAppId() {
-		return appId;
-	}
-
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
-
-	public String getAppSecret() {
-		return appSecret;
-	}
-
-	public void setAppSecret(String appSecret) {
-		this.appSecret = appSecret;
-	}
-
-	public String getApiBaseUrl() {
-		return apiBaseUrl;
-	}
 
 	public boolean verifySignature(String timestamp, String nonce, String signature) {
 		if (StringUtils.isBlank(timestamp) || StringUtils.isBlank(nonce) || StringUtils.isBlank(signature))

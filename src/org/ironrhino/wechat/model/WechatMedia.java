@@ -6,6 +6,11 @@ import java.util.Date;
 import org.ironrhino.core.util.JsonUtils;
 import org.springframework.beans.BeanUtils;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class WechatMedia implements Serializable {
 
 	private static final long serialVersionUID = 8896631350899380567L;
@@ -20,10 +25,6 @@ public class WechatMedia implements Serializable {
 
 	private long created_at;
 
-	public WechatMedia() {
-
-	}
-
 	public WechatMedia(String json) {
 		try {
 			WechatMedia wm = JsonUtils.fromJson(json, WechatMedia.class);
@@ -31,38 +32,6 @@ public class WechatMedia implements Serializable {
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
-	}
-
-	public String getMedia_id() {
-		return media_id;
-	}
-
-	public void setMedia_id(String media_id) {
-		this.media_id = media_id;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public WechatMediaType getType() {
-		return type;
-	}
-
-	public void setType(WechatMediaType type) {
-		this.type = type;
-	}
-
-	public long getCreated_at() {
-		return created_at;
-	}
-
-	public void setCreated_at(long created_at) {
-		this.created_at = created_at;
 	}
 
 	public Date getExpireDate() {

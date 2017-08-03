@@ -10,54 +10,33 @@ import org.springframework.core.annotation.Order;
 
 import com.qq.weixin.corp.aes.WXBizMsgCrypt;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @AutoConfig
 @Order
 public class CorpWechatAction extends BaseAction {
 
 	private static final long serialVersionUID = 6947874262092642404L;
 
+	@Getter
+	@Setter
 	private String msg_signature;
 
+	@Getter
+	@Setter
 	private String timestamp;
 
+	@Getter
+	@Setter
 	private String nonce;
 
+	@Getter
+	@Setter
 	private String echostr;
 
 	@Autowired
 	private CorpWechat _wechat;
-
-	public String getMsg_signature() {
-		return msg_signature;
-	}
-
-	public void setMsg_signature(String msg_signature) {
-		this.msg_signature = msg_signature;
-	}
-
-	public String getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public String getNonce() {
-		return nonce;
-	}
-
-	public void setNonce(String nonce) {
-		this.nonce = nonce;
-	}
-
-	public String getEchostr() {
-		return echostr;
-	}
-
-	public void setEchostr(String echostr) {
-		this.echostr = echostr;
-	}
 
 	public CorpWechat getWechat() {
 		return _wechat;
@@ -66,19 +45,16 @@ public class CorpWechatAction extends BaseAction {
 	@Override
 	public String execute() throws Exception {
 		CorpWechat wechat = getWechat();
-		WXBizMsgCrypt wxBizMsgCrypt = new WXBizMsgCrypt(wechat.getToken(),
-				wechat.getEncodingAesKey(), wechat.getCorpId());
+		WXBizMsgCrypt wxBizMsgCrypt = new WXBizMsgCrypt(wechat.getToken(), wechat.getEncodingAesKey(),
+				wechat.getCorpId());
 		if (StringUtils.isNotBlank(echostr)) {
-			echostr = wxBizMsgCrypt.verifyURL(msg_signature, timestamp, nonce,
-					echostr);
+			echostr = wxBizMsgCrypt.verifyURL(msg_signature, timestamp, nonce, echostr);
 			ServletActionContext.getResponse().getWriter().write(echostr);
 			return NONE;
 		} else if (StringUtils.isNotBlank(requestBody)) {
-			requestBody = wxBizMsgCrypt.decryptMsg(msg_signature, timestamp,
-					nonce, requestBody);
+			requestBody = wxBizMsgCrypt.decryptMsg(msg_signature, timestamp, nonce, requestBody);
 			String responseBody = wechat.reply(requestBody);
-			responseBody = wxBizMsgCrypt.encryptMsg(responseBody, timestamp,
-					nonce);
+			responseBody = wxBizMsgCrypt.encryptMsg(responseBody, timestamp, nonce);
 			ServletActionContext.getResponse().getWriter().write(responseBody);
 			return NONE;
 		}

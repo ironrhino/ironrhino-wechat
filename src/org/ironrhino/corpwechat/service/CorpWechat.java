@@ -48,6 +48,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Component
 public class CorpWechat {
 
@@ -65,15 +68,23 @@ public class CorpWechat {
 	@Value("${corpWechat.apiBaseUrl:https://qyapi.weixin.qq.com/cgi-bin}")
 	protected String apiBaseUrl;
 
+	@Getter
+	@Setter
 	@Value("${corpWechat.token:token}")
 	private String token;
 
+	@Getter
+	@Setter
 	@Value("${corpWechat.encodingAesKey:}")
 	private String encodingAesKey;
 
+	@Getter
+	@Setter
 	@Value("${corpWechat.corpId:id}")
 	private String corpId;
 
+	@Getter
+	@Setter
 	@Value("${corpWechat.corpSecret:secret}")
 	private String corpSecret;
 
@@ -82,38 +93,6 @@ public class CorpWechat {
 
 	@Autowired
 	private CacheManager cacheManager;
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public String getEncodingAesKey() {
-		return encodingAesKey;
-	}
-
-	public void setEncodingAesKey(String encodingAesKey) {
-		this.encodingAesKey = encodingAesKey;
-	}
-
-	public String getCorpId() {
-		return corpId;
-	}
-
-	public void setCorpId(String corpId) {
-		this.corpId = corpId;
-	}
-
-	public String getCorpSecret() {
-		return corpSecret;
-	}
-
-	public void setCorpSecret(String corpSecret) {
-		this.corpSecret = corpSecret;
-	}
 
 	public String reply(String request) {
 		logger.info("received:\n{}", request);
@@ -133,7 +112,7 @@ public class CorpWechat {
 		return response;
 	}
 
-	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+	@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 	public void send(CorpWechatMessage msg) throws IOException {
 		String json = msg.toString();
 		logger.info("sending: {}", json);

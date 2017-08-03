@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ironrhino.core.util.JsonUtils;
 import org.springframework.beans.BeanUtils;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class WechatMenu implements Serializable {
 
 	private static final long serialVersionUID = -7522732554408635903L;
@@ -17,10 +20,6 @@ public class WechatMenu implements Serializable {
 	private Integer menuid;
 
 	private List<WechatButton> button = new ArrayList<>();
-
-	public WechatMenu() {
-
-	}
 
 	public WechatMenu(String json) {
 		try {
@@ -31,22 +30,6 @@ public class WechatMenu implements Serializable {
 		}
 	}
 
-	public Integer getMenuid() {
-		return menuid;
-	}
-
-	public void setMenuid(Integer menuid) {
-		this.menuid = menuid;
-	}
-
-	public List<WechatButton> getButton() {
-		return button;
-	}
-
-	public void setButton(List<WechatButton> button) {
-		this.button = button;
-	}
-
 	public void validate() {
 		int size = button.size();
 		if (size > 3)
@@ -55,21 +38,7 @@ public class WechatMenu implements Serializable {
 			b.validate(false);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this)
-			return true;
-		if (!(obj instanceof WechatMenu))
-			return false;
-		WechatMenu that = (WechatMenu) obj;
-		return this.button.equals(that.button);
-	}
-
-	@Override
-	public int hashCode() {
-		return this.button != null ? this.button.hashCode() : 0;
-	}
-
+	@Data
 	public static class WechatButton implements Serializable {
 
 		private static final long serialVersionUID = 4413492219682548885L;
@@ -80,54 +49,6 @@ public class WechatMenu implements Serializable {
 		private String url;
 		private String media_id;
 		private List<WechatButton> sub_button = new ArrayList<WechatMenu.WechatButton>();
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public WechatButtonType getType() {
-			return type;
-		}
-
-		public void setType(WechatButtonType type) {
-			this.type = type;
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public String getMedia_id() {
-			return media_id;
-		}
-
-		public void setMedia_id(String media_id) {
-			this.media_id = media_id;
-		}
-
-		public List<WechatButton> getSub_button() {
-			return sub_button;
-		}
-
-		public void setSub_button(List<WechatButton> sub_button) {
-			this.sub_button = sub_button;
-		}
 
 		public void validate(boolean sub) {
 			if (StringUtils.isBlank(name)) {
@@ -182,21 +103,6 @@ public class WechatMenu implements Serializable {
 				}
 
 			}
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == this)
-				return true;
-			if (!(obj instanceof WechatButton))
-				return false;
-			WechatButton that = (WechatButton) obj;
-			return EqualsBuilder.reflectionEquals(this, that);
-		}
-
-		@Override
-		public int hashCode() {
-			return HashCodeBuilder.reflectionHashCode(this);
 		}
 
 	}

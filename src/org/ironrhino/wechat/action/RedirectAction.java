@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import lombok.Setter;
+
 @AutoConfig
 public class RedirectAction extends BaseAction {
 
@@ -38,17 +40,11 @@ public class RedirectAction extends BaseAction {
 	@Value("${wechat.oauth.fallbackUrl:}")
 	private String fallbackUrl;
 
+	@Setter
 	private String code;
 
+	@Setter
 	private String state;
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
 
 	@Override
 	public String execute() throws IOException {
