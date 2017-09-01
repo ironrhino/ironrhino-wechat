@@ -17,8 +17,7 @@ public enum WechatMessageType implements Displayable {
 			String content = msg.getContent();
 			try {
 				if (content.getBytes("UTF-8").length > WechatResponse.CONTENT_MAX_BYTES)
-					content = content.substring(0,
-							WechatResponse.CONTENT_MAX_BYTES / 3);
+					content = content.substring(0, WechatResponse.CONTENT_MAX_BYTES / 3);
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
@@ -40,8 +39,7 @@ public enum WechatMessageType implements Displayable {
 	video {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			ObjectNode video = object.with(name()).put("media_id",
-					msg.getMedia_id());
+			ObjectNode video = object.with(name()).put("media_id", msg.getMedia_id());
 			if (StringUtils.isNotBlank(msg.getTitle()))
 				video.put("title", msg.getTitle());
 			if (StringUtils.isNotBlank(msg.getDescription()))
@@ -51,10 +49,8 @@ public enum WechatMessageType implements Displayable {
 	music {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("title", msg.getTitle())
-					.put("description", msg.getDescription())
-					.put("musicurl", msg.getMusicurl())
-					.put("hqmusicurl", msg.getHqmusicurl())
+			object.with(name()).put("title", msg.getTitle()).put("description", msg.getDescription())
+					.put("musicurl", msg.getMusicurl()).put("hqmusicurl", msg.getHqmusicurl())
 					.put("thumb_media_id", msg.getThumb_media_id());
 		}
 	},
@@ -62,17 +58,26 @@ public enum WechatMessageType implements Displayable {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
 			if (msg.getArticles().size() > 10)
-				throw new IllegalArgumentException(
-						"article size can not large than 10");
+				throw new IllegalArgumentException("article size can not large than 10");
 			ArrayNode articles = object.with(name()).putArray("articles");
 			for (WechatArticle article : msg.getArticles()) {
-				ObjectNode item = mapper.createObjectNode()
-						.put("title", article.getTitle())
-						.put("description", article.getDescription())
-						.put("url", article.getUrl())
+				ObjectNode item = mapper.createObjectNode().put("title", article.getTitle())
+						.put("description", article.getDescription()).put("url", article.getUrl())
 						.put("picurl", article.getPicurl());
 				articles.add(item);
 			}
+		}
+	},
+	mpnews {
+		@Override
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			object.with(name()).put("media_id", msg.getMedia_id());
+		}
+	},
+	wxcard {
+		@Override
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			object.with(name()).put("card_id", msg.getCard_id());
 		}
 	};
 

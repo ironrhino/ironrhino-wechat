@@ -18,6 +18,7 @@ public class WechatMessage implements Serializable {
 	private WechatMessageType msgtype;
 	private String content;
 	private String media_id;
+	private String card_id;
 	private String title;
 	private String description;
 	private String musicurl;
