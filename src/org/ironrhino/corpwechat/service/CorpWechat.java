@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -255,9 +254,8 @@ public class CorpWechat {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		accessToken = node.get("access_token").textValue();
 		int expiresIn = node.get("expires_in").asInt();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.SECOND, expiresIn - 60);
-		cacheManager.put(getCorpId(), accessToken, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
+		cacheManager.put(getCorpId(), accessToken, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
+				CACHE_NAMESPACE_ACCESSTOKEN);
 		return accessToken;
 	}
 
@@ -276,9 +274,8 @@ public class CorpWechat {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		jsApiTicket = node.get("ticket").textValue();
 		int expiresIn = node.get("expires_in").asInt();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.SECOND, expiresIn - 60);
-		cacheManager.put(getCorpId(), jsApiTicket, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
+		cacheManager.put(getCorpId(), jsApiTicket, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
+				CACHE_NAMESPACE_JSAPITICKET);
 		return jsApiTicket;
 	}
 

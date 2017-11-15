@@ -362,7 +362,8 @@ public class Wechat {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		accessToken = node.get("access_token").textValue();
 		int expiresIn = node.get("expires_in").asInt();
-		cacheManager.put(getAppId(), accessToken, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_ACCESSTOKEN);
+		cacheManager.put(getAppId(), accessToken, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
+				CACHE_NAMESPACE_ACCESSTOKEN);
 		return accessToken;
 	}
 
@@ -381,7 +382,8 @@ public class Wechat {
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 		jsApiTicket = node.get("ticket").textValue();
 		int expiresIn = node.get("expires_in").asInt();
-		cacheManager.put(getAppId(), jsApiTicket, expiresIn - 60, TimeUnit.SECONDS, CACHE_NAMESPACE_JSAPITICKET);
+		cacheManager.put(getAppId(), jsApiTicket, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
+				CACHE_NAMESPACE_JSAPITICKET);
 		return jsApiTicket;
 	}
 
