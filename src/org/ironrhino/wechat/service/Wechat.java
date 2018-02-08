@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -242,7 +243,7 @@ public class Wechat {
 		if (header != null && header.getValue() != null)
 			contentType = header.getValue();
 		if (contentType.startsWith("text/")) {
-			String result = StringUtils.join(IOUtils.readLines(entity.getContent()), "\n");
+			String result = StringUtils.join(IOUtils.readLines(entity.getContent(), StandardCharsets.UTF_8), "\n");
 			logger.info("received: " + result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			response.close();
