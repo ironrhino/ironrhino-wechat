@@ -37,6 +37,9 @@ public class RedirectAction extends BaseAction {
 	@Autowired(required = false)
 	protected WechatUserToucher wechatUserToucher;
 
+	@Value("${login.defaultTargetUrl:/}")
+	private String defaultTargetUrl;
+
 	@Value("${wechat.oauth.fallbackUrl:}")
 	private String fallbackUrl;
 
@@ -49,8 +52,13 @@ public class RedirectAction extends BaseAction {
 	@Override
 	public String execute() throws IOException {
 		UserDetails userDetails = AuthzUtils.getUserDetails();
-		if (userDetails != null)
+		if (userDetails != null) {
+			if (StringUtils.isNotBlank(state))
+				targetUrl = state;
+			if (StringUtils.isBlank(targetUrl))
+				targetUrl = defaultTargetUrl;
 			return REDIRECT;
+		}
 		if (StringUtils.isNotBlank(state)) {
 			if (StringUtils.isNotBlank(code)) {
 				String openid = null;
