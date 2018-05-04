@@ -160,8 +160,8 @@ public class Wechat {
 		if (errcode != 0)
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-		else if (node.get("msg_id") != null)
-			return node.get("msg_id").asLong();
+		else if (node.get("msgid") != null)
+			return node.get("msgid").asLong();
 		else
 			return null;
 	}
