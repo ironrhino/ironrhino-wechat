@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -94,6 +95,11 @@ public class CorpWechat {
 	@Autowired
 	private CacheManager cacheManager;
 
+	private boolean micrometerPresent = ClassUtils.isPresent("io.micrometer.core.instrument.Metrics",
+			getClass().getClassLoader());
+
+	private String micrometerTimerName = "corpWechat.calls";
+
 	public String reply(String request) {
 		logger.info("received:\n{}", request);
 		String response = "";
@@ -130,71 +136,113 @@ public class CorpWechat {
 			throw new ErrorMessage(file + " is not a file");
 		if (file.length() > mediaType.getMaxFileLength())
 			throw new ErrorMessage(file + " is large than " + mediaType.getMaxFileLength());
-		StringBuilder sb = new StringBuilder(apiBaseUrl);
-		sb.append("/media/upload?access_token=");
-		sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
-		HttpPost httppost = new HttpPost(sb.toString());
-		FileBody media = new FileBody(file);
-		HttpEntity reqEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532)
-				.addPart("media", media).build();
-		httppost.setEntity(reqEntity);
-		logger.info("uploading: " + file);
-		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		String result = httpClient.execute(httppost, new BasicResponseHandler());
-		logger.info("received: " + result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		httpClient.close();
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}",
-					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-		return new CorpWechatMedia(result);
-	}
-
-	public void download(String mediaId, OutputStream os) throws IOException {
-		StringBuilder sb = new StringBuilder(apiBaseUrl);
-		sb.append("/media/get?access_token=");
-		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
-		HttpGet httpGet = new HttpGet(sb.toString());
-		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		CloseableHttpResponse response = httpClient.execute(httpGet);
-		HttpEntity entity = response.getEntity();
-		Header header = entity.getContentType();
-		String contentType = "";
-		if (header != null && header.getValue() != null)
-			contentType = header.getValue();
-		if (contentType.startsWith("text/")) {
-			String result = StringUtils.join(IOUtils.readLines(entity.getContent(), StandardCharsets.UTF_8), "\n");
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
+		try {
+			StringBuilder sb = new StringBuilder(apiBaseUrl);
+			sb.append("/media/upload?access_token=");
+			sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
+			HttpPost httppost = new HttpPost(sb.toString());
+			FileBody media = new FileBody(file);
+			HttpEntity reqEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532)
+					.addPart("media", media).build();
+			httppost.setEntity(reqEntity);
+			logger.info("uploading: " + file);
+			CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
+			String result = httpClient.execute(httppost, new BasicResponseHandler());
 			logger.info("received: " + result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-			response.close();
 			httpClient.close();
 			if (node.has("errcode"))
 				throw new ErrorMessage("errcode:{0},errmsg:{1}",
 						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+			return new CorpWechatMedia(result);
+		} catch (SocketTimeoutException e) {
+			timeout = true;
+			throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", "post", "path", "/media/upload", "timeout",
+								String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
 		}
-		IOUtils.copy(entity.getContent(), os);
-		response.close();
-		httpClient.close();
+	}
+
+	public void download(String mediaId, OutputStream os) throws IOException {
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
+		try {
+			StringBuilder sb = new StringBuilder(apiBaseUrl);
+			sb.append("/media/get?access_token=");
+			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
+			HttpGet httpGet = new HttpGet(sb.toString());
+			CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
+			CloseableHttpResponse response = httpClient.execute(httpGet);
+			HttpEntity entity = response.getEntity();
+			Header header = entity.getContentType();
+			String contentType = "";
+			if (header != null && header.getValue() != null)
+				contentType = header.getValue();
+			if (contentType.startsWith("text/")) {
+				String result = StringUtils.join(IOUtils.readLines(entity.getContent(), StandardCharsets.UTF_8), "\n");
+				logger.info("received: " + result);
+				JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+				response.close();
+				httpClient.close();
+				if (node.has("errcode"))
+					throw new ErrorMessage("errcode:{0},errmsg:{1}",
+							new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+			}
+			IOUtils.copy(entity.getContent(), os);
+			response.close();
+			httpClient.close();
+		} catch (SocketTimeoutException e) {
+			timeout = true;
+			throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", "get", "path", "/media/get", "timeout",
+								String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
+		}
 	}
 
 	public void download(String mediaId, HttpServletResponse resp) throws IOException {
-		StringBuilder sb = new StringBuilder(apiBaseUrl);
-		sb.append("/media/get?access_token=");
-		sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
-		HttpGet httpGet = new HttpGet(sb.toString());
-		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		CloseableHttpResponse response = httpClient.execute(httpGet);
-		HttpEntity entity = response.getEntity();
-		Header header = entity.getContentType();
-		if (header != null && header.getValue() != null)
-			resp.setHeader(header.getName(), header.getValue());
-		long contentLength = entity.getContentLength();
-		if (contentLength > 0)
-			resp.setIntHeader("Content-Length", (int) contentLength);
-		resp.setHeader("Cache-Control", "max-age=86400");
-		IOUtils.copy(entity.getContent(), resp.getOutputStream());
-		response.close();
-		httpClient.close();
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
+		try {
+			StringBuilder sb = new StringBuilder(apiBaseUrl);
+			sb.append("/media/get?access_token=");
+			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
+			HttpGet httpGet = new HttpGet(sb.toString());
+			CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
+			CloseableHttpResponse response = httpClient.execute(httpGet);
+			HttpEntity entity = response.getEntity();
+			Header header = entity.getContentType();
+			if (header != null && header.getValue() != null)
+				resp.setHeader(header.getName(), header.getValue());
+			long contentLength = entity.getContentLength();
+			if (contentLength > 0)
+				resp.setIntHeader("Content-Length", (int) contentLength);
+			resp.setHeader("Cache-Control", "max-age=86400");
+			IOUtils.copy(entity.getContent(), resp.getOutputStream());
+			response.close();
+			httpClient.close();
+		} catch (SocketTimeoutException e) {
+			timeout = true;
+			throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", "get", "path", "/media/get", "timeout",
+								String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
+		}
 	}
 
 	protected String invoke(String path, String request, int retryTimes) throws IOException {
@@ -202,6 +250,8 @@ public class CorpWechat {
 		sb.append(path).append(path.indexOf('?') > -1 ? "&" : "?").append("access_token=").append(fetchAccessToken());
 		String url = sb.toString();
 		String result;
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
 		try {
 			if (request != null) {
 				logger.info("post to {}: {}", url, request);
@@ -228,10 +278,19 @@ public class CorpWechat {
 			}
 			return result;
 		} catch (SocketTimeoutException e) {
+			timeout = true;
 			if (retryTimes > 0)
 				return invoke(path, request, --retryTimes);
 			else
 				throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", (request != null) ? "post" : "get", "path",
+								path.indexOf('?') > 0 ? path.substring(0, path.indexOf('?')) : path, "timeout",
+								String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
 		}
 
 	}
@@ -247,17 +306,31 @@ public class CorpWechat {
 		Map<String, String> params = new HashMap<>();
 		params.put("corpid", getCorpId());
 		params.put("corpsecret", getCorpSecret());
-		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/gettoken", params);
-		logger.info("fetchAccessToken received: {}", result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}",
-					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-		accessToken = node.get("access_token").textValue();
-		int expiresIn = node.get("expires_in").asInt();
-		cacheManager.put(getCorpId(), accessToken, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
-				CACHE_NAMESPACE_ACCESSTOKEN);
-		return accessToken;
+		String path = "/gettoken";
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
+		try {
+			String result = HttpClientUtils.getResponseText(apiBaseUrl + path, params);
+			logger.info("fetchAccessToken received: {}", result);
+			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+			if (node.has("errcode"))
+				throw new ErrorMessage("errcode:{0},errmsg:{1}",
+						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+			accessToken = node.get("access_token").textValue();
+			int expiresIn = node.get("expires_in").asInt();
+			cacheManager.put(getCorpId(), accessToken, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
+					CACHE_NAMESPACE_ACCESSTOKEN);
+			return accessToken;
+		} catch (SocketTimeoutException e) {
+			timeout = true;
+			throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", "get", "path", path, "timeout", String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
+		}
 	}
 
 	public String getJsApiTicket() throws IOException {
@@ -267,17 +340,31 @@ public class CorpWechat {
 		Map<String, String> params = new HashMap<>();
 		params.put("access_token", fetchAccessToken());
 		params.put("type", "jsapi");
-		String result = HttpClientUtils.getResponseText(apiBaseUrl + "/get_jsapi_ticket", params);
-		logger.info("getJsApiToken received: {}", result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode") && node.get("errcode").asInt() > 0)
-			throw new ErrorMessage("errcode:{0},errmsg:{1}",
-					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-		jsApiTicket = node.get("ticket").textValue();
-		int expiresIn = node.get("expires_in").asInt();
-		cacheManager.put(getCorpId(), jsApiTicket, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
-				CACHE_NAMESPACE_JSAPITICKET);
-		return jsApiTicket;
+		String path = "/get_jsapi_ticket";
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
+		try {
+			String result = HttpClientUtils.getResponseText(apiBaseUrl + path, params);
+			logger.info("getJsApiToken received: {}", result);
+			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+			if (node.has("errcode") && node.get("errcode").asInt() > 0)
+				throw new ErrorMessage("errcode:{0},errmsg:{1}",
+						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+			jsApiTicket = node.get("ticket").textValue();
+			int expiresIn = node.get("expires_in").asInt();
+			cacheManager.put(getCorpId(), jsApiTicket, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
+					CACHE_NAMESPACE_JSAPITICKET);
+			return jsApiTicket;
+		} catch (SocketTimeoutException e) {
+			timeout = true;
+			throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", "get", "path", path, "timeout", String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
+		}
 	}
 
 	public String getJsApiSignature(String jsapi_ticket, String noncestr, String timestamp, String url) {
@@ -318,24 +405,38 @@ public class CorpWechat {
 	}
 
 	public CorpWechatUserInfo getUserInfoByCode(String code) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo");
-		sb.append("?access_token=").append(fetchAccessToken());
-		sb.append("&code=").append(code);
-		String result = HttpClientUtils.getResponseText(sb.toString());
-		logger.info("getUserInfoByCode received: {}", result);
-		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		if (node.has("errcode"))
-			throw new ErrorMessage("errcode:{0},errmsg:{1}",
-					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-		CorpWechatUserInfo info = new CorpWechatUserInfo();
-		if (node.has("UserId"))
-			info.setUserid(node.get("UserId").asText());
-		if (node.has("OpenId"))
-			info.setOpenid(node.get("OpenId").asText());
-		if (node.has("DeviceId"))
-			info.setDeviceid(node.get("DeviceId").asText());
-		return info;
+		long time = System.currentTimeMillis();
+		boolean timeout = false;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo");
+			sb.append("?access_token=").append(fetchAccessToken());
+			sb.append("&code=").append(code);
+			String result = HttpClientUtils.getResponseText(sb.toString());
+			logger.info("getUserInfoByCode received: {}", result);
+			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+			if (node.has("errcode"))
+				throw new ErrorMessage("errcode:{0},errmsg:{1}",
+						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+			CorpWechatUserInfo info = new CorpWechatUserInfo();
+			if (node.has("UserId"))
+				info.setUserid(node.get("UserId").asText());
+			if (node.has("OpenId"))
+				info.setOpenid(node.get("OpenId").asText());
+			if (node.has("DeviceId"))
+				info.setDeviceid(node.get("DeviceId").asText());
+			return info;
+		} catch (SocketTimeoutException e) {
+			timeout = true;
+			throw e;
+		} finally {
+			if (micrometerPresent) {
+				io.micrometer.core.instrument.Metrics
+						.timer(micrometerTimerName, "method", "get", "path", "/user/getuserinfo", "timeout",
+								String.valueOf(timeout))
+						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
+			}
+		}
 	}
 
 }
