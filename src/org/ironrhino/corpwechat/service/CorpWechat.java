@@ -26,6 +26,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.cache.CacheManager;
+import org.ironrhino.core.metrics.Metrics;
 import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
@@ -45,7 +46,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -94,11 +94,6 @@ public class CorpWechat {
 
 	@Autowired
 	private CacheManager cacheManager;
-
-	private boolean micrometerPresent = ClassUtils.isPresent("io.micrometer.core.instrument.Metrics",
-			getClass().getClassLoader());
-
-	private String micrometerTimerName = "corpWechat.calls";
 
 	public String reply(String request) {
 		logger.info("received:\n{}", request);
@@ -157,16 +152,11 @@ public class CorpWechat {
 				throw new ErrorMessage("errcode:{0},errmsg:{1}",
 						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 			return new CorpWechatMedia(result);
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", "post", "path", "/media/upload", "timeout",
-								String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, "post", "/media/upload", timeout);
 		}
 	}
 
@@ -198,16 +188,11 @@ public class CorpWechat {
 			IOUtils.copy(entity.getContent(), os);
 			response.close();
 			httpClient.close();
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", "get", "path", "/media/get", "timeout",
-								String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, "get", "/media/get", timeout);
 		}
 	}
 
@@ -232,17 +217,13 @@ public class CorpWechat {
 			IOUtils.copy(entity.getContent(), resp.getOutputStream());
 			response.close();
 			httpClient.close();
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", "get", "path", "/media/get", "timeout",
-								String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, "get", "/media/get", timeout);
 		}
+
 	}
 
 	protected String invoke(String path, String request, int retryTimes) throws IOException {
@@ -277,22 +258,16 @@ public class CorpWechat {
 				}
 			}
 			return result;
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			if (retryTimes > 0)
 				return invoke(path, request, --retryTimes);
 			else
 				throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", (request != null) ? "post" : "get", "path",
-								path.indexOf('?') > 0 ? path.substring(0, path.indexOf('?')) : path, "timeout",
-								String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, (request != null) ? "post" : "get",
+					path.indexOf('?') > 0 ? path.substring(0, path.indexOf('?')) : path, timeout);
 		}
-
 	}
 
 	public String invoke(String path, String request) throws IOException {
@@ -321,15 +296,11 @@ public class CorpWechat {
 			cacheManager.put(getCorpId(), accessToken, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
 					CACHE_NAMESPACE_ACCESSTOKEN);
 			return accessToken;
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", "get", "path", path, "timeout", String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, "get", path, timeout);
 		}
 	}
 
@@ -355,15 +326,11 @@ public class CorpWechat {
 			cacheManager.put(getCorpId(), jsApiTicket, expiresIn > 60 ? expiresIn - 60 : expiresIn, TimeUnit.SECONDS,
 					CACHE_NAMESPACE_JSAPITICKET);
 			return jsApiTicket;
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", "get", "path", path, "timeout", String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, "get", path, timeout);
 		}
 	}
 
@@ -426,17 +393,19 @@ public class CorpWechat {
 			if (node.has("DeviceId"))
 				info.setDeviceid(node.get("DeviceId").asText());
 			return info;
-		} catch (SocketTimeoutException e) {
-			timeout = true;
+		} catch (IOException e) {
+			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
 		} finally {
-			if (micrometerPresent) {
-				io.micrometer.core.instrument.Metrics
-						.timer(micrometerTimerName, "method", "get", "path", "/user/getuserinfo", "timeout",
-								String.valueOf(timeout))
-						.record(System.currentTimeMillis() - time, TimeUnit.MILLISECONDS);
-			}
+			record(time, "get", "/user/getuserinfo", timeout);
 		}
 	}
+
+	private static void record(long startTimestamp, String method, String path, boolean timeout) {
+		Metrics.recordTimer(micrometerTimerName, System.currentTimeMillis() - startTimestamp, TimeUnit.MILLISECONDS,
+				"method", method, "path", path, "timeout", String.valueOf(timeout));
+	}
+
+	private static String micrometerTimerName = "corpWechat.calls";
 
 }
