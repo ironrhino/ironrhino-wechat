@@ -1,7 +1,9 @@
 package org.ironrhino.corpwechat.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
@@ -10,10 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -46,6 +48,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -176,7 +179,9 @@ public class CorpWechat {
 			if (header != null && header.getValue() != null)
 				contentType = header.getValue();
 			if (contentType.startsWith("text/")) {
-				String result = StringUtils.join(IOUtils.readLines(entity.getContent(), StandardCharsets.UTF_8), "\n");
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(entity.getContent(), StandardCharsets.UTF_8));
+				String result = br.lines().collect(Collectors.joining("\n"));
 				logger.info("received: " + result);
 				JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 				response.close();
@@ -185,7 +190,7 @@ public class CorpWechat {
 					throw new ErrorMessage("errcode:{0},errmsg:{1}",
 							new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 			}
-			IOUtils.copy(entity.getContent(), os);
+			StreamUtils.copy(entity.getContent(), os);
 			response.close();
 			httpClient.close();
 		} catch (IOException e) {
@@ -214,7 +219,7 @@ public class CorpWechat {
 			if (contentLength > 0)
 				resp.setIntHeader("Content-Length", (int) contentLength);
 			resp.setHeader("Cache-Control", "max-age=86400");
-			IOUtils.copy(entity.getContent(), resp.getOutputStream());
+			StreamUtils.copy(entity.getContent(), resp.getOutputStream());
 			response.close();
 			httpClient.close();
 		} catch (IOException e) {
