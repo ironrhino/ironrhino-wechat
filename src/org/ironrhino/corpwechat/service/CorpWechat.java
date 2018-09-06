@@ -14,11 +14,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -27,6 +30,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.ironrhino.core.cache.CacheManager;
 import org.ironrhino.core.metrics.Metrics;
 import org.ironrhino.core.util.AppInfo;
@@ -98,6 +102,28 @@ public class CorpWechat {
 	@Autowired
 	private CacheManager cacheManager;
 
+	@Getter
+	private CloseableHttpClient httpClient;
+
+	@PostConstruct
+	private void init() {
+		RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).setConnectTimeout(20000)
+				.setExpectContinueEnabled(true).build();
+		httpClient = HttpClients.custom().disableAuthCaching().disableAutomaticRetries().disableConnectionState()
+				.disableCookieManagement().setConnectionTimeToLive(60, TimeUnit.SECONDS)
+				.setDefaultRequestConfig(requestConfig).build();
+	}
+
+	@PreDestroy
+	private void destroy() {
+		if (httpClient != null)
+			try {
+				httpClient.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	}
+
 	public String reply(String request) {
 		logger.info("received:\n{}", request);
 		String response = "";
@@ -146,11 +172,9 @@ public class CorpWechat {
 					.addPart("media", media).build();
 			httppost.setEntity(reqEntity);
 			logger.info("uploading: " + file);
-			CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
 			String result = httpClient.execute(httppost, new BasicResponseHandler());
 			logger.info("received: " + result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-			httpClient.close();
 			if (node.has("errcode"))
 				throw new ErrorMessage("errcode:{0},errmsg:{1}",
 						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
@@ -171,7 +195,6 @@ public class CorpWechat {
 			sb.append("/media/get?access_token=");
 			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 			HttpGet httpGet = new HttpGet(sb.toString());
-			CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
 			CloseableHttpResponse response = httpClient.execute(httpGet);
 			HttpEntity entity = response.getEntity();
 			Header header = entity.getContentType();
@@ -185,14 +208,12 @@ public class CorpWechat {
 				logger.info("received: " + result);
 				JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 				response.close();
-				httpClient.close();
 				if (node.has("errcode"))
 					throw new ErrorMessage("errcode:{0},errmsg:{1}",
 							new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
 			}
 			StreamUtils.copy(entity.getContent(), os);
 			response.close();
-			httpClient.close();
 		} catch (IOException e) {
 			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
@@ -209,7 +230,6 @@ public class CorpWechat {
 			sb.append("/media/get?access_token=");
 			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 			HttpGet httpGet = new HttpGet(sb.toString());
-			CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
 			CloseableHttpResponse response = httpClient.execute(httpGet);
 			HttpEntity entity = response.getEntity();
 			Header header = entity.getContentType();
@@ -221,7 +241,6 @@ public class CorpWechat {
 			resp.setHeader("Cache-Control", "max-age=86400");
 			StreamUtils.copy(entity.getContent(), resp.getOutputStream());
 			response.close();
-			httpClient.close();
 		} catch (IOException e) {
 			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;

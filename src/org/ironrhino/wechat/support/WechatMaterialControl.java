@@ -12,9 +12,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.ironrhino.core.util.ErrorMessage;
-import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
 import org.ironrhino.wechat.model.WechatMaterialCount;
 import org.ironrhino.wechat.model.WechatMaterialList;
@@ -35,7 +33,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
-@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2) )
+@Retryable(include = IOException.class, backoff = @Backoff(delay = 1000, maxDelay = 5000, multiplier = 2))
 public class WechatMaterialControl {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -58,11 +56,9 @@ public class WechatMaterialControl {
 				.addPart("media", media).build();
 		httppost.setEntity(reqEntity);
 		logger.info("uploading: " + file);
-		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		String result = httpClient.execute(httppost, new BasicResponseHandler());
+		String result = wechat.getHttpClient().execute(httppost, new BasicResponseHandler());
 		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		httpClient.close();
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
@@ -149,11 +145,9 @@ public class WechatMaterialControl {
 		HttpEntity reqEntity = builder.build();
 		httppost.setEntity(reqEntity);
 		logger.info("uploading: " + file);
-		CloseableHttpClient httpClient = HttpClientUtils.create(true, 20000);
-		String result = httpClient.execute(httppost, new BasicResponseHandler());
+		String result = wechat.getHttpClient().execute(httppost, new BasicResponseHandler());
 		logger.info("received: " + result);
 		JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-		httpClient.close();
 		if (node.has("errcode"))
 			throw new ErrorMessage("errcode:{0},errmsg:{1}",
 					new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
