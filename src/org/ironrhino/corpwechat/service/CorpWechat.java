@@ -201,7 +201,7 @@ public class CorpWechat {
 			String contentType = "";
 			if (header != null && header.getValue() != null)
 				contentType = header.getValue();
-			if (contentType.startsWith("text/")) {
+			if (contentType.startsWith("text/plain") || contentType.startsWith("application/json")) {
 				BufferedReader br = new BufferedReader(
 						new InputStreamReader(entity.getContent(), StandardCharsets.UTF_8));
 				String result = br.lines().collect(Collectors.joining("\n"));
