@@ -284,7 +284,6 @@ public class Wechat {
 			StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
 			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 			HttpGet httpGet = new HttpGet(sb.toString());
-			CloseableHttpClient httpClient = HttpClientUtils.create(20000);
 			CloseableHttpResponse response = httpClient.execute(httpGet);
 			HttpEntity entity = response.getEntity();
 			Header header = entity.getContentType();
