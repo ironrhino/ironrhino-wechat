@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -54,6 +55,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Getter;
@@ -163,22 +165,32 @@ public class CorpWechat {
 		long time = System.currentTimeMillis();
 		boolean timeout = false;
 		try {
-			StringBuilder sb = new StringBuilder(apiBaseUrl);
-			sb.append("/media/upload?access_token=");
-			sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
-			HttpPost httppost = new HttpPost(sb.toString());
-			FileBody media = new FileBody(file);
-			HttpEntity reqEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532)
-					.addPart("media", media).build();
-			httppost.setEntity(reqEntity);
-			logger.info("uploading: " + file);
-			String result = httpClient.execute(httppost, new BasicResponseHandler());
-			logger.info("received: " + result);
-			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
-			if (node.has("errcode"))
-				throw new ErrorMessage("errcode:{0},errmsg:{1}",
-						new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
-			return new CorpWechatMedia(result);
+			int attempts = 3;
+			while (attempts-- > 0) {
+				StringBuilder sb = new StringBuilder(apiBaseUrl);
+				sb.append("/media/upload?access_token=");
+				sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
+				HttpPost httppost = new HttpPost(sb.toString());
+				FileBody media = new FileBody(file);
+				HttpEntity reqEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532)
+						.addPart("media", media).build();
+				httppost.setEntity(reqEntity);
+				logger.info("uploading: " + file);
+				String result = httpClient.execute(httppost, new BasicResponseHandler());
+				logger.info("received: " + result);
+				JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+				if (node.has("errcode")) {
+					int errcode = node.get("errcode").asInt();
+					if (errcode == 40001) {
+						cacheManager.delete(getCorpId(), CACHE_NAMESPACE_ACCESSTOKEN);
+						continue;
+					}
+					throw new ErrorMessage("errcode:{0},errmsg:{1}",
+							new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+				}
+				return new CorpWechatMedia(result);
+			}
+			throw new ErrorMessage("max attempts reached");
 		} catch (IOException e) {
 			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
@@ -187,33 +199,49 @@ public class CorpWechat {
 		}
 	}
 
-	public void download(String mediaId, OutputStream os) throws IOException {
+	protected void doDownload(String mediaId, OutputStream os, Consumer<HttpEntity> consumer) throws IOException {
 		long time = System.currentTimeMillis();
 		boolean timeout = false;
 		try {
-			StringBuilder sb = new StringBuilder(apiBaseUrl);
-			sb.append("/media/get?access_token=");
-			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
-			HttpGet httpGet = new HttpGet(sb.toString());
-			CloseableHttpResponse response = httpClient.execute(httpGet);
-			HttpEntity entity = response.getEntity();
-			Header header = entity.getContentType();
-			String contentType = "";
-			if (header != null && header.getValue() != null)
-				contentType = header.getValue();
-			if (contentType.startsWith("text/plain") || contentType.startsWith("application/json")) {
-				BufferedReader br = new BufferedReader(
-						new InputStreamReader(entity.getContent(), StandardCharsets.UTF_8));
-				String result = br.lines().collect(Collectors.joining("\n"));
-				logger.info("received: " + result);
-				JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+			int attempts = 3;
+			while (attempts-- > 0) {
+				StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+				sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
+				HttpGet httpGet = new HttpGet(sb.toString());
+				CloseableHttpResponse response = httpClient.execute(httpGet);
+				HttpEntity entity = response.getEntity();
+				Header header = entity.getContentType();
+				String contentType = "";
+				if (header != null && header.getValue() != null)
+					contentType = header.getValue();
+				if (contentType.startsWith("text/plain") || contentType.startsWith("application/json")) {
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader(entity.getContent(), StandardCharsets.UTF_8));
+					String result = br.lines().collect(Collectors.joining("\n"));
+					logger.info("received: " + result);
+					try {
+						JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
+						response.close();
+						if (node.has("errcode")) {
+							int errcode = node.get("errcode").asInt();
+							if (errcode == 40001) {
+								cacheManager.delete(getCorpId(), CACHE_NAMESPACE_ACCESSTOKEN);
+								continue;
+							}
+							throw new ErrorMessage("errcode:{0},errmsg:{1}",
+									new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+						}
+					} catch (JsonProcessingException e) {
+						// if file is normal text
+					}
+				}
+				if (consumer != null)
+					consumer.accept(entity);
+				StreamUtils.copy(entity.getContent(), os);
 				response.close();
-				if (node.has("errcode"))
-					throw new ErrorMessage("errcode:{0},errmsg:{1}",
-							new Object[] { node.get("errcode").asText(), node.get("errmsg").asText() });
+				return;
 			}
-			StreamUtils.copy(entity.getContent(), os);
-			response.close();
+			throw new ErrorMessage("max attempts reached");
 		} catch (IOException e) {
 			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
 			throw e;
@@ -222,16 +250,13 @@ public class CorpWechat {
 		}
 	}
 
+	public void download(String mediaId, OutputStream os) throws IOException {
+		doDownload(mediaId, os, entity -> {
+		});
+	}
+
 	public void download(String mediaId, HttpServletResponse resp) throws IOException {
-		long time = System.currentTimeMillis();
-		boolean timeout = false;
-		try {
-			StringBuilder sb = new StringBuilder(apiBaseUrl);
-			sb.append("/media/get?access_token=");
-			sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
-			HttpGet httpGet = new HttpGet(sb.toString());
-			CloseableHttpResponse response = httpClient.execute(httpGet);
-			HttpEntity entity = response.getEntity();
+		doDownload(mediaId, resp.getOutputStream(), entity -> {
 			Header header = entity.getContentType();
 			if (header != null && header.getValue() != null)
 				resp.setHeader(header.getName(), header.getValue());
@@ -239,15 +264,7 @@ public class CorpWechat {
 			if (contentLength > 0)
 				resp.setIntHeader("Content-Length", (int) contentLength);
 			resp.setHeader("Cache-Control", "max-age=86400");
-			StreamUtils.copy(entity.getContent(), resp.getOutputStream());
-			response.close();
-		} catch (IOException e) {
-			timeout = (e instanceof SocketTimeoutException || e.getCause() instanceof SocketTimeoutException);
-			throw e;
-		} finally {
-			record(time, "get", "/media/get", timeout);
-		}
-
+		});
 	}
 
 	protected String invoke(String path, String request, int retryTimes) throws IOException {
