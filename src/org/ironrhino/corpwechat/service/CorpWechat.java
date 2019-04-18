@@ -37,7 +37,6 @@ import org.ironrhino.core.metrics.Metrics;
 import org.ironrhino.core.util.AppInfo;
 import org.ironrhino.core.util.CodecUtils;
 import org.ironrhino.core.util.ErrorMessage;
-import org.ironrhino.core.util.HttpClientUtils;
 import org.ironrhino.core.util.JsonUtils;
 import org.ironrhino.corpwechat.handler.CorpWechatRequestHandler;
 import org.ironrhino.corpwechat.model.CorpWechatMedia;
@@ -46,6 +45,7 @@ import org.ironrhino.corpwechat.model.CorpWechatMessage;
 import org.ironrhino.corpwechat.model.CorpWechatRequest;
 import org.ironrhino.corpwechat.model.CorpWechatResponse;
 import org.ironrhino.corpwechat.model.CorpWechatUserInfo;
+import org.ironrhino.wechat.util.HttpClientHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -287,11 +287,11 @@ public class CorpWechat {
 		try {
 			if (request != null) {
 				logger.info("post to {}: {}", url, request);
-				result = HttpClientUtils.post(url, request);
+				result = HttpClientHelper.post(httpClient, url, request);
 				logger.info("post received: {}", result);
 			} else {
 				logger.info("get  {}", url);
-				result = HttpClientUtils.get(url);
+				result = HttpClientHelper.get(httpClient, url);
 				logger.info("get received: {}", result);
 			}
 			if (retryTimes > 0 && result.indexOf("\"errcode\"") > -1) {
@@ -336,7 +336,7 @@ public class CorpWechat {
 		long time = System.currentTimeMillis();
 		boolean timeout = false;
 		try {
-			String result = HttpClientUtils.getResponseText(apiBaseUrl + path, params);
+			String result = HttpClientHelper.getResponseText(httpClient, apiBaseUrl + path, params);
 			logger.info("fetchAccessToken received: {}", result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			if (node.has("errcode"))
@@ -366,7 +366,7 @@ public class CorpWechat {
 		long time = System.currentTimeMillis();
 		boolean timeout = false;
 		try {
-			String result = HttpClientUtils.getResponseText(apiBaseUrl + path, params);
+			String result = HttpClientHelper.getResponseText(httpClient, apiBaseUrl + path, params);
 			logger.info("getJsApiToken received: {}", result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			if (node.has("errcode") && node.get("errcode").asInt() > 0)
@@ -430,7 +430,7 @@ public class CorpWechat {
 			sb.append("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo");
 			sb.append("?access_token=").append(fetchAccessToken());
 			sb.append("&code=").append(code);
-			String result = HttpClientUtils.getResponseText(sb.toString());
+			String result = HttpClientHelper.getResponseText(httpClient, sb.toString());
 			logger.info("getUserInfoByCode received: {}", result);
 			JsonNode node = JsonUtils.fromJson(result, JsonNode.class);
 			if (node.has("errcode"))
