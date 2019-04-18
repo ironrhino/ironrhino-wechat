@@ -118,14 +118,23 @@ public class Wechat {
 	@Autowired
 	private CacheManager cacheManager;
 
+	@Value("${wechat.connectionRequestTimeout:5000}")
+	private int connectionRequestTimeout = 5000;
+
+	@Value("${wechat.connectTimeout:5000}")
+	private int connectTimeout = 5000;
+
+	@Value("${wechat.socketTimeout:10000}")
+	private int socketTimeout;
+
 	@Getter
 	private CloseableHttpClient httpClient;
 
 	@PostConstruct
 	private void init() {
 		RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true)
-				.setConnectionRequestTimeout(5000).setConnectTimeout(5000).setSocketTimeout(10000)
-				.setExpectContinueEnabled(true).build();
+				.setConnectionRequestTimeout(connectionRequestTimeout).setConnectTimeout(connectTimeout)
+				.setSocketTimeout(socketTimeout).setExpectContinueEnabled(true).build();
 		httpClient = HttpClients.custom().disableAuthCaching().disableAutomaticRetries().disableConnectionState()
 				.disableCookieManagement().setConnectionTimeToLive(60, TimeUnit.SECONDS)
 				.setDefaultRequestConfig(requestConfig).build();
