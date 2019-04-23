@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 public class WechatRequest implements Serializable {
 
 	private static final long serialVersionUID = -7515159900178523381L;
+	private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
 	private String messageBody;
 	private Long msgId;
@@ -53,8 +54,7 @@ public class WechatRequest implements Serializable {
 		BeanWrapperImpl bwi = new BeanWrapperImpl(this);
 		Document doc;
 		try {
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.parse(new InputSource(new StringReader(xml)));
+			doc = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
