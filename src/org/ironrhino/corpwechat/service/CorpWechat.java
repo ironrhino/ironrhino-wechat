@@ -112,7 +112,10 @@ public class CorpWechat {
 	private int connectTimeout = 5000;
 
 	@Value("${corpWechat.socketTimeout:10000}")
-	private int socketTimeout;
+	private int socketTimeout = 10000;
+
+	@Value("${corpWechat.maxConnTotal:50}")
+	private int maxConnTotal = 50;
 
 	@Getter
 	private CloseableHttpClient httpClient;
@@ -123,7 +126,8 @@ public class CorpWechat {
 				.setConnectionRequestTimeout(connectionRequestTimeout).setConnectTimeout(connectTimeout)
 				.setSocketTimeout(socketTimeout).setExpectContinueEnabled(true).build();
 		httpClient = HttpClients.custom().disableAuthCaching().disableAutomaticRetries().disableConnectionState()
-				.disableCookieManagement().setConnectionTimeToLive(60, TimeUnit.SECONDS)
+				.disableCookieManagement().setConnectionTimeToLive(60, TimeUnit.SECONDS).setMaxConnTotal(maxConnTotal)
+				.setMaxConnPerRoute(maxConnTotal)
 				.setRetryHandler(
 						(e, executionCount, httpCtx) -> executionCount < 3 && e instanceof NoHttpResponseException)
 				.setDefaultRequestConfig(requestConfig).build();
