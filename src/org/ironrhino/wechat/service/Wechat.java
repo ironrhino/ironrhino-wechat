@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -137,6 +138,8 @@ public class Wechat {
 				.setSocketTimeout(socketTimeout).setExpectContinueEnabled(true).build();
 		httpClient = HttpClients.custom().disableAuthCaching().disableAutomaticRetries().disableConnectionState()
 				.disableCookieManagement().setConnectionTimeToLive(60, TimeUnit.SECONDS)
+				.setRetryHandler(
+						(e, executionCount, httpCtx) -> executionCount < 3 && e instanceof NoHttpResponseException)
 				.setDefaultRequestConfig(requestConfig).build();
 	}
 
