@@ -125,8 +125,8 @@ public class CorpWechat {
 		RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true)
 				.setConnectionRequestTimeout(connectionRequestTimeout).setConnectTimeout(connectTimeout)
 				.setSocketTimeout(socketTimeout).setExpectContinueEnabled(true).build();
-		httpClient = HttpClients.custom().disableAuthCaching().disableAutomaticRetries().disableConnectionState()
-				.disableCookieManagement().setConnectionTimeToLive(60, TimeUnit.SECONDS).setMaxConnTotal(maxConnTotal)
+		httpClient = HttpClients.custom().disableAuthCaching().disableConnectionState().disableCookieManagement()
+				.setConnectionTimeToLive(60, TimeUnit.SECONDS).setMaxConnTotal(maxConnTotal)
 				.setMaxConnPerRoute(maxConnTotal)
 				.setRetryHandler(
 						(e, executionCount, httpCtx) -> executionCount < 3 && e instanceof NoHttpResponseException)
