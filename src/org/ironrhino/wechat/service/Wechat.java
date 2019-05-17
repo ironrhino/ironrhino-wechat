@@ -136,9 +136,8 @@ public class Wechat {
 
 	@PostConstruct
 	private void init() {
-		RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true)
-				.setConnectionRequestTimeout(connectionRequestTimeout).setConnectTimeout(connectTimeout)
-				.setSocketTimeout(socketTimeout).setExpectContinueEnabled(true).build();
+		RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(connectionRequestTimeout)
+				.setConnectTimeout(connectTimeout).setSocketTimeout(socketTimeout).build();
 		httpClient = HttpClients.custom().disableAuthCaching().disableConnectionState().disableCookieManagement()
 				.setConnectionTimeToLive(60, TimeUnit.SECONDS).setMaxConnTotal(maxConnTotal)
 				.setMaxConnPerRoute(maxConnTotal)
