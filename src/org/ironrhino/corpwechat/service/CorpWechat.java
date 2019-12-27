@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -127,8 +128,8 @@ public class CorpWechat {
 		httpClient = HttpClients.custom().disableAuthCaching().disableConnectionState().disableCookieManagement()
 				.setConnectionTimeToLive(60, TimeUnit.SECONDS).setMaxConnTotal(maxConnTotal)
 				.setMaxConnPerRoute(maxConnTotal)
-				.setRetryHandler(
-						(e, executionCount, httpCtx) -> executionCount < 3 && e instanceof NoHttpResponseException)
+				.setRetryHandler((e, executionCount, httpCtx) -> executionCount < 3
+						&& (e instanceof NoHttpResponseException || e instanceof UnknownHostException))
 				.setDefaultRequestConfig(requestConfig).build();
 	}
 
