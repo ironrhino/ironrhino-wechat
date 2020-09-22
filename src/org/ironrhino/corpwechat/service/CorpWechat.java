@@ -222,7 +222,7 @@ public class CorpWechat {
 		try {
 			int attempts = 3;
 			while (attempts-- > 0) {
-				StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+				StringBuilder sb = new StringBuilder("https://api.weixin.qq.com/cgi-bin/media/get?access_token=");
 				sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 				HttpGet httpGet = new HttpGet(sb.toString());
 				CloseableHttpResponse response = httpClient.execute(httpGet);

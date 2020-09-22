@@ -253,8 +253,7 @@ public class Wechat {
 		try {
 			int attempts = 3;
 			while (attempts-- > 0) {
-				StringBuilder sb = new StringBuilder(
-						"http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=");
+				StringBuilder sb = new StringBuilder("https://api.weixin.qq.com/cgi-bin/media/upload?access_token=");
 				sb.append(fetchAccessToken()).append("&type=").append(mediaType.name());
 				HttpPost httppost = new HttpPost(sb.toString());
 				FileBody media = new FileBody(file);
@@ -291,8 +290,7 @@ public class Wechat {
 		try {
 			int attempts = 3;
 			while (attempts-- > 0) {
-				String url = "http://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
-						+ fetchAccessToken();
+				String url = "https://api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=" + fetchAccessToken();
 				Map<String, String> map = new LinkedHashMap<>();
 				map.put("media_id", media_id);
 				map.put("title", title);
@@ -328,7 +326,7 @@ public class Wechat {
 		try {
 			int attempts = 3;
 			while (attempts-- > 0) {
-				StringBuilder sb = new StringBuilder("http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=");
+				StringBuilder sb = new StringBuilder("https://api.weixin.qq.com/cgi-bin/media/get?access_token=");
 				sb.append(fetchAccessToken()).append("&media_id=").append(mediaId);
 				HttpGet httpGet = new HttpGet(sb.toString());
 				CloseableHttpResponse response = httpClient.execute(httpGet);
