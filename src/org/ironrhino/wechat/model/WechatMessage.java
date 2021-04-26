@@ -24,6 +24,11 @@ public class WechatMessage implements Serializable {
 	private String musicurl;
 	private String hqmusicurl;
 	private String thumb_media_id;
+	private String url;
+	private String picurl;
+	private String appid;
+	private String pagepath;
+	private String kf_account;
 	private List<WechatArticle> articles;
 
 	public WechatMessage(String touser, String content) {

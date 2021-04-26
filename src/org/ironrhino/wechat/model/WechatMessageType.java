@@ -22,6 +22,9 @@ public enum WechatMessageType implements Displayable {
 				e.printStackTrace();
 			}
 			object.with(name()).put("content", content);
+			String kf_account = msg.getKf_account();
+			if (StringUtils.isNotBlank(kf_account))
+				object.with("customservice").put("kf_account", kf_account);
 		}
 	},
 	image {
@@ -78,6 +81,13 @@ public enum WechatMessageType implements Displayable {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
 			object.with(name()).put("card_id", msg.getCard_id());
+		}
+	},
+	miniprogrampage {
+		@Override
+		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
+			object.with(name()).put("title", msg.getTitle()).put("appid", msg.getAppid())
+					.put("pagepath", msg.getPagepath()).put("thumb_media_id", msg.getThumb_media_id());
 		}
 	};
 
