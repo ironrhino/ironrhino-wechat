@@ -51,8 +51,7 @@ public class RedirectAction extends BaseAction {
 
 	@Override
 	public String execute() throws IOException {
-		if (StringUtils.isNotBlank(state)
-				&& !RequestUtils.isSameOrigin(ServletActionContext.getRequest().getRequestURL().toString(), state)) {
+		if (StringUtils.isNotBlank(state) && !RequestUtils.isSameOrigin(ServletActionContext.getRequest(), state)) {
 			return ACCESSDENIED;
 		}
 		UserDetails userDetails = AuthzUtils.getUserDetails();
