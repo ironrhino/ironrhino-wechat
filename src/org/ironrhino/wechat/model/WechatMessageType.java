@@ -21,28 +21,28 @@ public enum WechatMessageType implements Displayable {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			object.with(name()).put("content", content);
+			object.withObject(name()).put("content", content);
 			String kf_account = msg.getKf_account();
 			if (StringUtils.isNotBlank(kf_account))
-				object.with("customservice").put("kf_account", kf_account);
+				object.withObject("customservice").put("kf_account", kf_account);
 		}
 	},
 	image {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("media_id", msg.getMedia_id());
+			object.withObject(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	voice {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("media_id", msg.getMedia_id());
+			object.withObject(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	video {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			ObjectNode video = object.with(name()).put("media_id", msg.getMedia_id());
+			ObjectNode video = object.withObject(name()).put("media_id", msg.getMedia_id());
 			if (StringUtils.isNotBlank(msg.getTitle()))
 				video.put("title", msg.getTitle());
 			if (StringUtils.isNotBlank(msg.getDescription()))
@@ -52,7 +52,7 @@ public enum WechatMessageType implements Displayable {
 	music {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("title", msg.getTitle()).put("description", msg.getDescription())
+			object.withObject(name()).put("title", msg.getTitle()).put("description", msg.getDescription())
 					.put("musicurl", msg.getMusicurl()).put("hqmusicurl", msg.getHqmusicurl())
 					.put("thumb_media_id", msg.getThumb_media_id());
 		}
@@ -62,7 +62,7 @@ public enum WechatMessageType implements Displayable {
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
 			if (msg.getArticles().size() > 10)
 				throw new IllegalArgumentException("article size can not large than 10");
-			ArrayNode articles = object.with(name()).putArray("articles");
+			ArrayNode articles = object.withObject(name()).putArray("articles");
 			for (WechatArticle article : msg.getArticles()) {
 				ObjectNode item = mapper.createObjectNode().put("title", article.getTitle())
 						.put("description", article.getDescription()).put("url", article.getUrl())
@@ -74,19 +74,19 @@ public enum WechatMessageType implements Displayable {
 	mpnews {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("media_id", msg.getMedia_id());
+			object.withObject(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	wxcard {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("card_id", msg.getCard_id());
+			object.withObject(name()).put("card_id", msg.getCard_id());
 		}
 	},
 	miniprogrampage {
 		@Override
 		protected void buildObjectNode(ObjectNode object, WechatMessage msg) {
-			object.with(name()).put("title", msg.getTitle()).put("appid", msg.getAppid())
+			object.withObject(name()).put("title", msg.getTitle()).put("appid", msg.getAppid())
 					.put("pagepath", msg.getPagepath()).put("thumb_media_id", msg.getThumb_media_id());
 		}
 	};

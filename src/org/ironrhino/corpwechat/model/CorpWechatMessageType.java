@@ -17,31 +17,29 @@ public enum CorpWechatMessageType implements Displayable {
 			String content = msg.getContent();
 			try {
 				if (content.getBytes("UTF-8").length > CorpWechatResponse.CONTENT_MAX_BYTES)
-					content = content.substring(0,
-							CorpWechatResponse.CONTENT_MAX_BYTES / 3);
+					content = content.substring(0, CorpWechatResponse.CONTENT_MAX_BYTES / 3);
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			object.with(name()).put("content", content);
+			object.withObject(name()).put("content", content);
 		}
 	},
 	image {
 		@Override
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
-			object.with(name()).put("media_id", msg.getMedia_id());
+			object.withObject(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	voice {
 		@Override
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
-			object.with(name()).put("media_id", msg.getMedia_id());
+			object.withObject(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	video {
 		@Override
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
-			ObjectNode video = object.with(name()).put("media_id",
-					msg.getMedia_id());
+			ObjectNode video = object.withObject(name()).put("media_id", msg.getMedia_id());
 			if (StringUtils.isNotBlank(msg.getTitle()))
 				video.put("title", msg.getTitle());
 			if (StringUtils.isNotBlank(msg.getDescription()))
@@ -51,21 +49,18 @@ public enum CorpWechatMessageType implements Displayable {
 	file {
 		@Override
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
-			object.with(name()).put("media_id", msg.getMedia_id());
+			object.withObject(name()).put("media_id", msg.getMedia_id());
 		}
 	},
 	news {
 		@Override
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
 			if (msg.getArticles().size() > 10)
-				throw new IllegalArgumentException(
-						"article size can not large than 10");
-			ArrayNode articles = object.with(name()).putArray("articles");
+				throw new IllegalArgumentException("article size can not large than 10");
+			ArrayNode articles = object.withObject(name()).putArray("articles");
 			for (CorpWechatArticle article : msg.getArticles()) {
-				ObjectNode item = mapper.createObjectNode()
-						.put("title", article.getTitle())
-						.put("description", article.getDescription())
-						.put("url", article.getUrl())
+				ObjectNode item = mapper.createObjectNode().put("title", article.getTitle())
+						.put("description", article.getDescription()).put("url", article.getUrl())
 						.put("picurl", article.getPicurl());
 				articles.add(item);
 			}
@@ -75,22 +70,14 @@ public enum CorpWechatMessageType implements Displayable {
 		@Override
 		protected void build(ObjectNode object, CorpWechatMessage msg) {
 			if (msg.getArticles().size() > 10)
-				throw new IllegalArgumentException(
-						"article size can not large than 10");
-			ArrayNode articles = object.with(name()).putArray("articles");
+				throw new IllegalArgumentException("article size can not large than 10");
+			ArrayNode articles = object.withObject(name()).putArray("articles");
 			for (CorpWechatArticle article : msg.getArticles()) {
-				ObjectNode item = mapper
-						.createObjectNode()
-						.put("title", article.getTitle())
-						.put("thumb_media_id", article.getThumb_media_id())
-						.put("author", article.getAuthor())
-						.put("content_source_url",
-								article.getContent_source_url())
-						.put("content_source_url",
-								article.getContent_source_url())
-						.put("content", article.getContent())
-						.put("digest", article.getDigest())
-						.put("show_cover_pic", article.getShow_cover_pic());
+				ObjectNode item = mapper.createObjectNode().put("title", article.getTitle())
+						.put("thumb_media_id", article.getThumb_media_id()).put("author", article.getAuthor())
+						.put("content_source_url", article.getContent_source_url())
+						.put("content_source_url", article.getContent_source_url()).put("content", article.getContent())
+						.put("digest", article.getDigest()).put("show_cover_pic", article.getShow_cover_pic());
 				articles.add(item);
 			}
 		}
@@ -115,9 +102,8 @@ public enum CorpWechatMessageType implements Displayable {
 
 	public String toJson(CorpWechatMessage msg) {
 		ObjectNode object = mapper.createObjectNode();
-		object.put("touser", msg.getTouser()).put("toparty", msg.getToparty())
-				.put("totag", msg.getTotag()).put("agentid", msg.getAgentid())
-				.put("safe", msg.getSafe()).put("msgtype", name());
+		object.put("touser", msg.getTouser()).put("toparty", msg.getToparty()).put("totag", msg.getTotag())
+				.put("agentid", msg.getAgentid()).put("safe", msg.getSafe()).put("msgtype", name());
 		build(object, msg);
 		return object.toString();
 	}
