@@ -35,7 +35,7 @@
 	<classpathentry kind="lib" path="lib/closure-compiler.jar"/>
 	<classpathentry kind="lib" path="lib/el-api-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="lib/lombok-1.18.30.jar"/>
+	<classpathentry kind="lib" path="lib/lombok-1.18.48.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/spring-test-5.3.41.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-api-1.0.jar"/>
@@ -61,13 +61,13 @@
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpclient-4.5.13.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpcore-4.4.14.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/httpmime-4.5.13.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-assets-5.3.5.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-core-5.3.5.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-hibernate-config-5.3.5.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-rest-5.3.5.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-security-5.3.5.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-security-config-5.3.5.jar"/>
-	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-sitemesh-config-5.3.5.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-assets-5.4.6.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-core-5.4.6.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-hibernate-config-5.4.6.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-rest-5.4.6.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-security-5.4.6.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-security-config-5.4.6.jar"/>
+	<classpathentry kind="lib" path="webapp/WEB-INF/lib/ironrhino-sitemesh-config-5.4.6.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-annotations-2.18.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-core-2.18.1.jar"/>
 	<classpathentry kind="lib" path="webapp/WEB-INF/lib/jackson-databind-2.18.1.jar"/>
