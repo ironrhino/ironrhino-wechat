@@ -8,15 +8,13 @@
 
 package com.qq.weixin.mp.aes;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import org.ironrhino.wechat.util.SecureDom;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * XMLParse class
@@ -34,11 +32,7 @@ class XMLParse {
 	public static Object[] extract(String xmltext) throws AesException     {
 		Object[] result = new Object[3];
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			StringReader sr = new StringReader(xmltext);
-			InputSource is = new InputSource(sr);
-			Document document = db.parse(is);
+			Document document = SecureDom.parse(new ByteArrayInputStream(xmltext.getBytes(StandardCharsets.UTF_8)));
 
 			Element root = document.getDocumentElement();
 			NodeList nodelist1 = root.getElementsByTagName("Encrypt");

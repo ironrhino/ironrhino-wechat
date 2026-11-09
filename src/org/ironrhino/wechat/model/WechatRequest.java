@@ -1,19 +1,18 @@
 package org.ironrhino.wechat.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.io.StringReader;
-
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ironrhino.wechat.util.SecureDom;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.NotWritablePropertyException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,6 @@ import lombok.NoArgsConstructor;
 public class WechatRequest implements Serializable {
 
 	private static final long serialVersionUID = -7515159900178523381L;
-	private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
 	private String messageBody;
 	private Long msgId;
@@ -52,12 +50,7 @@ public class WechatRequest implements Serializable {
 	public WechatRequest(String xml) {
 		this.messageBody = xml;
 		BeanWrapperImpl bwi = new BeanWrapperImpl(this);
-		Document doc;
-		try {
-			doc = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
-		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
+		Document doc = SecureDom.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 		Element element = doc.getDocumentElement();
 		NodeList nl = element.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
